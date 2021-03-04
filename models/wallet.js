@@ -23,13 +23,12 @@ module.exports = function(sequelize, DataTypes) {
 
     Wallet.associate = function(models){
         Wallet.belongsTo(models.User, {
-            as:'Owner',
+            as:'owner',
             foreignKey:{
                 allowNull:false
             }
         });
         Wallet.belongsToMany(models.User, {through: 'wallet_user'});
-        Wallet.hasMany(models.Expense);
     }
     return Wallet;
 };

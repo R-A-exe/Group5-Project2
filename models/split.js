@@ -3,7 +3,7 @@ module.exports = function(sequelize, DataTypes){
     var Split = sequelize.define('Split',{
 
         share:{
-            type: DataTypes.DECIMAL,
+            type: DataTypes.FLOAT,
             validate:{
                 min:0,
                 max:1

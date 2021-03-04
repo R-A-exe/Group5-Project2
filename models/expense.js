@@ -46,7 +46,6 @@ module.exports = function(sequelize, DataTypes){
                 allowNull: false
               }
         });
-        Expense.hasMany(models.Split);
       };
 
 return Expense;
