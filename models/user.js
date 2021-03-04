@@ -34,8 +34,6 @@ module.exports = function(sequelize, DataTypes) {
 
   User.associate = function(models){
     User.belongsToMany(models.Wallet, {through: 'wallet_user'});
-    User.hasMany(models.Split);
-    User.hasMany(models.Expense);
   }
   return User;
 };
