@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+    <div class="modal"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">New Expense</h5>
+          </div>
+          <div class="modal-body">
+            <form id="newExpense">
+                <div class="form-group">
+                    <label for="formGroupExampleInput">Title</label>
+                    <input type="text" class="form-control" id="title">
+                </div>
+                <div class="form-group">
+                  <label for="formGroupExampleInput2">Amount</label>
+                    <input type="text" class="form-control" id="amount">
+                </div>
+                <div class="form-group">
+                  <label for="exampleFormControlSelect1">Categories</label>
+                  <select class="form-control" id="category">
+                    <option></option>
+                    <option>Rent</option>
+                    <option>Gas</option>
+                    <option>Food</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="exampleFormControlTextarea1" class="form-label">Description</label>
+                  <textarea class="form-control" id="descritption" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="formGroupExampleInput2">Date</label>
+                    <input type="text" class="form-control" id="date">
+                </div>
+                <div class="form-group">
+                  <label for="formGroupExampleInput2">Paid By</label>
+                    <input type="text" class="form-control" id="paidby">
+                </div>
+                <div class="form-group">
+                    <label for="exampleFormControlSelect1">Split</label>
+                      <ul>
+                      </ul>
+                  </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id ="close" data-dismiss="modal">Close</button>
+            <button type="submit" id="submit-btn" class="btn btn-primary">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div> 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="js/expense.js"></script> 
+</body>
+</html>
