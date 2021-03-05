@@ -1,6 +1,6 @@
-INSERT INTO Users (email, password, createdAt, updatedAt) VALUES ("first_user@gmail.com", "firstuserpassword", "2021-01-01 00:00:00", "2021-01-01 00:00:00");
-INSERT INTO Users (email, password, createdAt, updatedAt) VALUES ("second_user@gmail.com", "seconduserpassword", "2021-01-01 00:00:00", "2021-01-01 00:00:00");
-INSERT INTO Users (email, password, createdAt, updatedAt) VALUES ("third_user@gmail.com", "thirduserpassword", "2021-01-01 00:00:00", "2021-01-01 00:00:00");
+INSERT INTO Users (name, email, password, createdAt, updatedAt) VALUES ("First User", "first_user@gmail.com", "firstuserpassword", "2021-01-01 00:00:00", "2021-01-01 00:00:00");
+INSERT INTO Users (name, email, password, createdAt, updatedAt) VALUES ("Second User", "second_user@gmail.com", "seconduserpassword", "2021-01-01 00:00:00", "2021-01-01 00:00:00");
+INSERT INTO Users (name, email, password, createdAt, updatedAt) VALUES ("Third User", "third_user@gmail.com", "thirduserpassword", "2021-01-01 00:00:00", "2021-01-01 00:00:00");
 
 INSERT INTO Wallets (title, category, public, ownerId, createdAt, updatedAt) VALUES ("My first wallet", "Groceries, Gas, Hydro, Internet", true, (SELECT id FROM users WHERE email = "first_user@gmail.com"), "2021-01-01 00:00:00", "2021-01-01 00:00:00");
 
@@ -27,4 +27,3 @@ INSERT INTO Expenses (amount, title, description, category, date, paidById, Wall
 INSERT INTO Splits (share, ExpenseId, UserId, createdAt, updatedAt) VALUES (0.5, (SELECT LAST_INSERT_ID()), 1, "2021-01-01 00:00:00", "2021-01-01 00:00:00"),
 (0.5, (SELECT LAST_INSERT_ID()), 2, "2021-01-01 00:00:00", "2021-01-01 00:00:00"),
 (0, (SELECT LAST_INSERT_ID()), 3, "2021-01-01 00:00:00", "2021-01-01 00:00:00");
-

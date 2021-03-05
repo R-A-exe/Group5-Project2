@@ -2,7 +2,8 @@
 const db = require("../models");
 const passport = require("../config/passport");
 
-module.exports = function(app) {
+
+module.exports = function (app) {
   // Using the passport.authenticate middleware with our local strategy.
   // If the user has valid login credentials, send them to the members page.
   // Otherwise the user will be sent an error
@@ -53,138 +54,146 @@ module.exports = function(app) {
   });
 
   //Get route for getting all wallets
-  app.get("/api/wallets/", function(req, res) {
+  app.get("/api/wallets/", function (req, res) {
     db.Wallet.findAll({})
-    .then(function(dbWallet) {
-      res.json(dbWallet);
-    });
+      .then(function (dbWallet) {
+        res.json(dbWallet);
+      });
   });
 
   // Get route for retrieving a single wallet
-  app.get("/api/wallets/:id", function(req, res) {
+  app.get("/api/wallets/:id", function (req, res) {
     db.Wallet.findOne({
       where: {
         id: req.params.id
-    }
-  })
-    .then(function(dbWallet) {
-      res.json(dbWallet);
-    });
+      }
+    })
+      .then(function (dbWallet) {
+        res.json(dbWallet);
+      });
   });
 
   // POST route for saving a new wallet
-  app.post("/api/wallet", function(req, res) {
+  app.post("/api/wallet", function (req, res) {
     db.Wallet.create({
-      title:req.body.title,
-      category: req.body.category ,
+      title: req.body.title,
+      category: req.body.category,
       public: req.body.public,
-    }).then(function(dbWallet) {
+    }).then(function (dbWallet) {
       res.json(dbWallet);
     });
   });
 
   // PUT route for updating wallet
-  app.put("/api/wallet/:id", function(req, res) {
+  app.put("/api/wallet/:id", function (req, res) {
     db.Wallet.update(req.body,
-    {
-      where: {
-        id: req.body.id
-      }
-    })
-    .then(function(dbWallet) {
-      res.json(dbWallet);
-    });
+      {
+        where: {
+          id: req.body.id
+        }
+      })
+      .then(function (dbWallet) {
+        res.json(dbWallet);
+      });
   });
 
   //Get route for getting all expense
-  app.get("/api/expenses/:id", function(req, res) {
+  app.get("/api/expenses/:id", function (req, res) {
     db.Expense.findAll({
       where: {
         WalletId: req.params.id
       }
-    }).then(function(dbExpense) {
+    }).then(function (dbExpense) {
       res.json(dbExpense);
     });
   });
 
   // Get route for retrieving a single expense
-  app.get("/api/expense/:id", function(req, res) {
+  app.get("/api/expense/:id", function (req, res) {
     db.Split.findOne({
       where: {
         id: req.params.id
-    }
-  }).then(function(dbSplit) {
+      }
+    }).then(function (dbSplit) {
       res.json(dbSplit);
     });
   });
 
   // POST route for saving a new expense
-  app.post("/api/expense",  async function(req, res) {
-    const t = await sequelize.transaction();
+  app.post("/api/expense", async function (req, res) {
+    const t = await db.sequelize.transaction();
     try {
-    // Then, we do some calls passing this transaction as an option:
-    const expense = await db.Expense.create({
-      title: req.body.title ,
-      amount:req.body.amount,
-      description:req.body.description,
-      category: req.body.category,
-      date:req.body.date,
-      paidById: req.body.paidById,
-      WalletId: req.body.walletId
-    }, { transaction: t });
-
-    var map = req.body.map;
-    map.forEach(async e =>{
-      await db.Split.create({
-        share: e.share,
-        UserId: e.userId,
-        ExpenseId: expense
+      // Then, we do some calls passing this transaction as an option:
+      const expense = await db.Expense.create({
+        title: req.body.title,
+        amount: req.body.amount,
+        description: req.body.description,
+        category: req.body.category,
+        date: req.body.date,
+        paidById: req.body.paidById,
+        WalletId: req.body.walletId
       }, { transaction: t });
-  })
-  // If the execution reaches this line, no errors were thrown.
-  // We commit the transaction.
-    await t.commit();
-    res.status(200);
-    } catch (error) {
 
-  // If the execution reaches this line, an error was thrown.
-  // We rollback the transaction.
-    await t.rollback();
-    res.status(500);
+      var map = req.body.map;
+      for (var i = 0; i < map.length; i++) {
+        await db.Split.create({
+          share: map[i].share,
+          UserId: map[i].userId,
+          ExpenseId: expense.id
+        }, { transaction: t });
+      }
+
+      // If the execution reaches this line, no errors were thrown.
+      // We commit the transaction.
+      await t.commit();
+      res.status(200);
+      res.send("added");
+    } catch (error) {
+      console.log(error)
+      // If the execution reaches this line, an error was thrown.
+      // We rollback the transaction.
+      await t.rollback();
+      res.status(400)
+      res.send(error)
+
+
     }
   });
 
   // PUT route for updating an expense
-  app.put("/api/expense/:id", async function(req, res) {
-    db.Expense.update({
-      title: req.body.title ,
-      amount:req.body.amount,
-      description:req.body.description,
-      category: req.body.category,
-      date:req.body.date,
-      paidById: req.body.paidById,
-      WalletId: req.body.walletId
-    },
-    {
-      where: {
-        id: req.params.id
-      }
-    })
-    .then(async function(success) {
-      if (success.status == 200){
-      db.Split.update({
-        share: e.share,
-        UserId: e.userId,
-        ExpenseId: e.expenseId
+  app.put("/api/expense/:id", async function (req, res) {
+    try {
+      await db.Expense.update({
+        title: req.body.title,
+        amount: req.body.amount,
+        description: req.body.description,
+        category: req.body.category,
+        date: req.body.date,
+        paidById: req.body.paidById,
+        WalletId: req.body.walletId
       },
-      {
-        where: {
-          id: req.params.id
-        }
-      }).then(function(response){
-        res.json(response)
-      })
+        {
+          where: {
+            id: req.params.id
+          }
+        });
+      var map = req.body.map;
+      for (var i = 0; i < map.length; i++) {
+        await db.Split.update({
+          share: map[i].share
+        },
+          {
+            where: {
+              ExpenseId: req.params.id,
+              UserId: map[i].userId
+            }
+          });
       }
-    });
-  })
+      res.status(200);
+      res.send('updated')
+    } catch (e) {
+      res.status(400);
+      res.send(e);
+    }
+  });
 }
