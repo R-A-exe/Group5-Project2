@@ -11,9 +11,8 @@ module.exports = function(sequelize, DataTypes){
         title:{
             type: DataTypes.STRING,
             allowNull: false,
-            validate: {
+            len: {
                 len: [1-255],
-                msg:"error_expense_name_size"
               }
         },
         description:{
@@ -21,7 +20,6 @@ module.exports = function(sequelize, DataTypes){
             allowNull: false,
             validate: {
                 len: [1-255],
-                msg:"error_expense_description_size"
               }
         },
         category:{
