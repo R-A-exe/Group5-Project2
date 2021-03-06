@@ -4,4 +4,6 @@ $(document).ready(() => {
   $.get("/api/user_data").then(data => {
     $(".member-name").text(data.name);
   });
+
+  window.location.replace("/members")
 });
