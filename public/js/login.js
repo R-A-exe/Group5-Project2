@@ -7,6 +7,7 @@ $(document).ready(() => {
   // When the form is submitted, we validate there's an email and password entered
   loginForm.on("submit", event => {
     event.preventDefault();
+    $("p").remove();
     const userData = {
       email: emailInput.val().trim(),
       password: passwordInput.val().trim()
@@ -33,6 +34,9 @@ $(document).ready(() => {
         // If there's an error, log the error
       })
       .catch(err => {
+        var errorMsg = "<p class='msg'>The email address or password you have entered is invalid.</p>"
+        $(".msg").addClass("red");
+        $(".login").prepend(errorMsg)
         console.log(err);
       });
   }
