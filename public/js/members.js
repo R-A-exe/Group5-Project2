@@ -1,6 +1,6 @@
 
 var wallet = null;
-var users = new Array();
+var users = new Map();
 var expenses = new Array();
 var categories;
 
@@ -9,7 +9,9 @@ $.get(`api/wallets/1`, (walletInfo, status) => {
     alert("Something went wrong");
   } else {
     wallet = walletInfo.wallet;
-    users = [...walletInfo.wallet.Users];
+    walletInfo.wallet.Users.forEach(e=> {
+        users.set(e.id, e);
+    });;
     expenses = [...walletInfo.expenses];
     categories = wallet.category.split("|")
   }
@@ -22,9 +24,10 @@ function loadWalletInfo() {
   $("#walletInfo").append(`<h1>${wallet.title}</h1>`)
   if (wallet.public) {
     $("#walletInfo").append(`<p>${wallet.title} is shared with</p>`);
-    for (user of users) {
+    for (let user of users.values()) {
       $("#walletInfo").append(`<p>${user.name}</p>`);
     }
+
   }
 }
 
@@ -36,7 +39,7 @@ function loadExpenses() {
          <td>${expense.category}</td>
          <td>${expense.date}</td>
          <td>${expense.amount}</td>
-         <td>${users.find(e => e.id == expense.paidById).name}</td>
+         <td>${users.get(expense.paidById).name}</td>
        </tr>`;
 
     $("#expenses table").append(tableLine);
@@ -62,14 +65,14 @@ $(document).on('click', '.expense', function (e) {
       $('#description').val(expense.description);
       $('#date').val(expense.date);
 
-      for (user of users) {
-        $('#paidBy').append(`<option data-id=${user.id} value="${user.name}">${user.name}</option>`);
+      for (let [id, user] of users) {
+        $('#paidBy').append(`<option data-id=${id} value="${user.name}">${user.name}</option>`);
       }
-      $(`#paidBy option[value="${users.find(e => e.id == expense.paidById).name}"]`).attr('selected', 'selected');
-      for (user of users) {
+      $(`#paidBy option[value="${users.get(expense.paidById)}"]`).attr('selected', 'selected');
+      for (let [id, user] of users) {
         var input = $('<input>');
-        input.val(expenseInfo.find(e=>e.UserId==user.id).share);
-        input.attr('data-id', user.id);
+        input.val(expenseInfo.find(e=>e.UserId==id).share);
+        input.attr('data-id', id);
         var shareLine = $('<tr>');
         shareLine.addClass('shareLine');
         var userName = $('<td>');
@@ -98,14 +101,14 @@ $('#addExpense').click(e=>{
   }
   $('#category').append(`<option>Other</option>`);
 
-  for (user of users) {
-    $('#paidBy').append(`<option data-id=${user.id} value="${user.name}">${user.name}</option>`);
+  for (let [id, user] of users) {
+    $('#paidBy').append(`<option data-id=${id} value="${user.name}">${user.name}</option>`);
   }
 
-  for (user of users) {
+  for (let [id, user] of users) {
     var input = $('<input>');
-    input.val(parseFloat((1/users.length).toFixed(2)));
-    input.attr('data-id', user.id);
+    input.val(parseFloat((1/users.size).toFixed(2)));
+    input.attr('data-id', id);
     var shareLine = $('<tr>');
     shareLine.addClass('shareLine');
     var userName = $('<td>');
@@ -174,7 +177,9 @@ function sendExpense(id) {
   if (validateData()) {
     var map = new Array();
     $("#split table tr input").each(function (i, obj) {
-      map.push({ share: $(obj).val().trim(), userId: $(obj).data('id') });
+      console.log(0+parseFloat($(obj).val().trim()));
+      var sh = isNaN(parseFloat($(obj).val().trim()))? '0' : parseFloat($(obj).val().trim());
+      map.push({ share: sh, userId: $(obj).data('id') });
     });
 
     var url;
@@ -183,7 +188,7 @@ function sendExpense(id) {
         url = '/api/expense/';
         type = 'POST';
     }else{
-      url = '/api/expense/${id}';
+      url = `/api/expense/${id}`;
       type = 'PUT';
     }
 
@@ -206,6 +211,7 @@ function sendExpense(id) {
         location.reload();
       },
       error: function (err) {
+        console.log(err);
         alert(err);
       }
     });
