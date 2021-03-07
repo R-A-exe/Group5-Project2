@@ -53,6 +53,11 @@ module.exports = function (app) {
     }
   });
 
+  //Get route for getting all users
+  app.get("/api/users/", function (req, res) {
+    db.User.findAll().then(users => res.json(users))
+  })
+
   //Get route for getting all wallets
   app.get("/api/wallets/", isAuthenticated, function (req, res) {
     db.Wallet.findAll({})

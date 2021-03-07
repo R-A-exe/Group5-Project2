@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+    <div class="modal"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">New Wallet</h5>
+          </div>
+          <div class="modal-body">
+            <form id="newExpense">
+                <div class="form-group">
+                    <label for="formGroupExampleInput">Title</label>
+                    <input type="text" class="form-control" id="wallet-title">
+                </div>
+                <div class="form-group">
+                    <label for="formGroupExampleInput">Wallet Owner:</label>
+                    <p class="owner-name"></p>
+                </div>
+                <div class="form-group">
+                  <label for="exampleFormControlSelect1">Category:</label>
+                  <input type="text" class="form-control" id="wallet-category">
+                </div>
+                <div class="form-group">
+                    <label for="formGroupExampleInput">Wallet Type</label>
+                    <input type="text" class="form-control" id="wallet-category">  
+                <div class="form-group">
+                    <label for="exampleFormControlSelect1">Users</label>
+                    <select class="form-control option-val" id="wallet-users">
+                      <option></option>
+                    </select>
+                    <ul id="wallet-user-list">
+                    </ul>
+                </div> 
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id ="close" data-dismiss="modal">Close</button>
+            <button type="submit" id="walletsub-btn" class="btn btn-primary">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div> 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="js/wallet.js"></script> 
+</body>
+</html>
+
