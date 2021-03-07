@@ -2,34 +2,114 @@
 <html lang="en">
 
 <head>
-  <title>Passport Authentication</title>
+  <title>Expenses</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/lumen/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
   <link href="stylesheets/style.css" rel="stylesheet">
 </head>
 
 <body>
-  <nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="/logout">
-        Logout
-      </a>
-    </div>
-  </div>
-</nav>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-6 col-md-offset-3">
-        <h2>Welcome <span class="member-name"></span></h2>
+  <div id="modal" class="modal">
+    <div class="expenseView">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 id="modelTitle" class="modal-title"></h5>
+          </div>
+          <div class="modal-body">
+            <form id="newExpense">
+              <div class="form-group">
+                <label for="formGroupExampleInput">Title</label>
+                <input type="text" class="form-control" id="title">
+              </div>
+              <div class="form-group">
+                <label for="formGroupExampleInput2">Amount</label>
+                <input type="text" class="form-control" id="amount">
+              </div>
+              <div class="form-group">
+                <label for="exampleFormControlSelect1">Categories</label>
+                <select class="form-control" id="category">
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="exampleFormControlTextarea1" class="form-label">Description</label>
+                <textarea class="form-control" id="description" rows="3"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="formGroupExampleInput2">Date</label>
+                <input type="date" class="form-control" id="date">
+              </div>
+              <div class="form-group">
+                <label for="formGroupExampleInput2">Paid By</label>
+                <select class="form-control" id="paidBy">
+                </select>
+              </div>
+              <div id="split" class="form-group">
+                <label for="exampleFormControlSelect1">Split</label>
+                <table>
+                </table>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="close" data-dismiss="modal">Close</button>
+                <button type="submit" id="submit-btn" class="btn btn-primary">Submit</button>
+              </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <a href="expense.html">Add New Expense</button>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script type="text/javascript" src="js/members.js"></script>
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="members.html">Splitish</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03"
+          aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarTogglerDemo03">
+          <ul class="navbar-nav mt-2 mt-lg-0">
 
+            <li class="nav-item">
+              <a class="nav-link" href="">Wallets</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/logout">Logout</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+  <main class="container-fluid">
+    <div class="row">
+      <div class="col-11" id="walletInfo">
+
+      </div>
+      <div class="col-1">
+        <button id="addExpense">Add expense</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <div id="expenses">
+          <table>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Paid by</th>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
 </body>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"
+  integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/members.js"></script>
 
 </html>
