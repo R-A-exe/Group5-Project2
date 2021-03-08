@@ -108,6 +108,8 @@ module.exports = function (app) {
     });
   });
 
+  
+
   // Get route for retrieving a single expense
   app.get("/api/expense/:id", function (req, res) {
     db.Split.findOne({
