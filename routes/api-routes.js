@@ -74,7 +74,17 @@ module.exports = function (app) {
         WalletId: req.params.id
       }
     });
-    var response = {wallet: walletInfo, expenses: expenses};
+    var shares = await db.Expense.findAll({
+        attributes:['id', 'amount'],
+        include:[{model:db.Split, attributes:['share', 'userId'], required: true}],
+        where:{
+          WalletId: req.params.id
+        }
+    });
+
+
+
+    var response = {wallet: walletInfo, expenses: expenses, shares: shares};
     res.status(200);
     res.json(response);
      
@@ -119,7 +129,7 @@ module.exports = function (app) {
   app.get("/api/expense/:id", isAuthenticated, function (req, res) {
     db.Split.findAll({
       where: {
-        ExpenseId: req.params.id
+        expenseId: req.params.id
       }
     }).then(function (dbSplit) {
       res.status(200);
@@ -138,16 +148,16 @@ module.exports = function (app) {
         description: req.body.description,
         category: req.body.category,
         date: req.body.date,
-        paidById: req.body.paidById,
-        WalletId: req.body.walletId
+        paidBy: req.body.paidBy,
+        walletId: req.body.walletId
       }, { transaction: t });
 
       var map = req.body.map;
       for (var i = 0; i < map.length; i++) {
         await db.Split.create({
           share: map[i].share,
-          UserId: map[i].userId,
-          ExpenseId: expense.id
+          userId: map[i].userId,
+          expenseId: expense.id
         }, { transaction: t });
       }
 
@@ -177,8 +187,8 @@ module.exports = function (app) {
         description: req.body.description,
         category: req.body.category,
         date: req.body.date,
-        paidById: req.body.paidById,
-        WalletId: req.body.walletId
+        paidBy: req.body.paidBy,
+        walletId: req.body.walletId
       },
         {
           where: {
@@ -192,8 +202,8 @@ module.exports = function (app) {
         },
           {
             where: {
-              ExpenseId: req.params.id,
-              UserId: map[i].userId
+              expenseId: req.params.id,
+              userId: map[i].userId
             }
           });
       }

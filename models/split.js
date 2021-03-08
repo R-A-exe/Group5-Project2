@@ -10,19 +10,6 @@ module.exports = function(sequelize, DataTypes){
             }
         }
     });
-
-    Split.associate = function(models){
-        Split.belongsTo(models.Expense,{
-            foreignKey: {
-                allowNull: false
-              }
-        });
-        Split.belongsTo(models.User,{
-            foreignKey: {
-                allowNull: false
-              }
-        });
-    }
     
     return Split;
 }
