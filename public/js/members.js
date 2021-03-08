@@ -8,12 +8,22 @@ $.get(`api/wallets/1`, (walletInfo, status) => {
   if (status != 'success') {
     alert("Something went wrong");
   } else {
+    console.log(walletInfo);
     wallet = walletInfo.wallet;
-    walletInfo.wallet.Users.forEach(e=> {
-        users.set(e.id, e);
-    });;
-    expenses = [...walletInfo.expenses];
-    categories = wallet.category.split("|")
+    walletInfo.wallet.Users.forEach(e => {
+      users.set(e.id, { id: e.id, email: e.email, name: e.name, paid: 0.0, owes: 0.0 });
+    });
+    walletInfo.expenses.forEach(e => {
+      users.get(e.paidBy).paid += parseFloat(e.amount);
+      expenses.push(e);
+    });
+    walletInfo.shares.forEach(e => {
+      e.Splits.forEach(s => {
+        users.get(s.userId).owes += parseFloat(e.amount) * parseFloat(s.share);
+      });
+    });
+    console.log(users);
+    categories = wallet.category.split("|");
   }
 }).then(() => {
   loadExpenses();
@@ -21,13 +31,25 @@ $.get(`api/wallets/1`, (walletInfo, status) => {
 });
 
 function loadWalletInfo() {
-  $("#walletInfo").append(`<h1>${wallet.title}</h1>`)
-  if (wallet.public) {
-    $("#walletInfo").append(`<p>${wallet.title} is shared with</p>`);
-    for (let user of users.values()) {
-      $("#walletInfo").append(`<p>${user.name}</p>`);
-    }
 
+  $("#walletInfo").prepend(`<h1>${wallet.title}</h1>`);
+
+  if (wallet.public) {
+    for (let user of users.values()) {
+      var total;
+      if (user.paid - user.owes > 0) {
+        total = `<span>Is owed ${parseFloat(user.paid - user.owes).toFixed(2)}</span>`;
+      } else {
+        total = `<span>Owes ${parseFloat(-(user.paid - user.owes)).toFixed(2)}</span>`;
+      }
+      var tableLine = `<tr class="userInfo">
+      <td>${user.name}</td>
+      <td>${parseFloat(user.paid).toFixed(2)}</td>
+      <td>${parseFloat(user.owes).toFixed(2)}</td>
+      <td>${total}</td>
+    </tr>`;
+      $("#walletInfo table").append(tableLine);
+    }
   }
 }
 
@@ -39,7 +61,7 @@ function loadExpenses() {
          <td>${expense.category}</td>
          <td>${expense.date}</td>
          <td>${expense.amount}</td>
-         <td>${users.get(expense.paidById).name}</td>
+         <td>${users.get(expense.paidBy).name}</td>
        </tr>`;
 
     $("#expenses table").append(tableLine);
@@ -68,10 +90,10 @@ $(document).on('click', '.expense', function (e) {
       for (let [id, user] of users) {
         $('#paidBy').append(`<option data-id=${id} value="${user.name}">${user.name}</option>`);
       }
-      $(`#paidBy option[value="${users.get(expense.paidById)}"]`).attr('selected', 'selected');
+      $(`#paidBy option[value="${users.get(expense.paidBy).name}"]`).attr('selected', 'selected');
       for (let [id, user] of users) {
         var input = $('<input>');
-        input.val(expenseInfo.find(e=>e.UserId==id).share);
+        input.val(expenseInfo.find(e => e.userId == id).share);
         input.attr('data-id', id);
         var shareLine = $('<tr>');
         shareLine.addClass('shareLine');
@@ -93,7 +115,7 @@ $(document).on('click', '.expense', function (e) {
 });
 
 
-$('#addExpense').click(e=>{
+$('#addExpense').click(e => {
   e.preventDefault();
   $('#modelTitle').text('New Expense');
   for (cat of categories) {
@@ -107,7 +129,7 @@ $('#addExpense').click(e=>{
 
   for (let [id, user] of users) {
     var input = $('<input>');
-    input.val(parseFloat((1/users.size).toFixed(2)));
+    input.val(parseFloat((1 / users.size).toFixed(2)));
     input.attr('data-id', id);
     var shareLine = $('<tr>');
     shareLine.addClass('shareLine');
@@ -139,20 +161,20 @@ function validateData() {
     valid = false;
   }
 
-  if ($('#amount').val().trim()=='' || parseInt($('#amount').val()) < 0.01) {
+  if ($('#amount').val().trim() == '' || parseFloat($('#amount').val()) < 0.01) {
     $('#amount').after('<p class="red" id="amountError">Please enter a valid amount</p>');
     valid = false;
-  } 
+  }
 
   if ($('#description').val().trim() == '') {
     $('#description').after('<p class="red" id="descriptionError">Please enter a description</p>');
     valid = false;
-  } 
+  }
 
   if ($('#date').val().trim() == '') {
     $('#date').after('<p class="red" id="dateError">Please enter a date</p>');
     valid = false;
-  } 
+  }
 
   var sum = 0;
   $("#split table tr input").each(function (i, obj) {
@@ -160,34 +182,33 @@ function validateData() {
     if (share < 0) {
       $(obj).parent().after('<p class="red" id="shareError">Shares must be between 0 and 1</p>');
       valid = false;
-    } 
-    if(!isNaN(share)){
+    }
+    if (!isNaN(share)) {
       sum += share;
     }
-});
-if (sum < 0.98 || sum > 1.02) {
-  $('#split').append('<p class="red" id="splitError">The sum of shares must equal 1</p>');
-  valid = false;
-} 
-return valid;
+  });
+  if (sum < 0.98 || sum > 1.02) {
+    $('#split').append('<p class="red" id="splitError">The sum of shares must equal 1</p>');
+    valid = false;
+  }
+  return valid;
 }
 
 function sendExpense(id) {
-
   if (validateData()) {
     var map = new Array();
     $("#split table tr input").each(function (i, obj) {
-      console.log(0+parseFloat($(obj).val().trim()));
-      var sh = isNaN(parseFloat($(obj).val().trim()))? '0' : parseFloat($(obj).val().trim());
+      console.log(0 + parseFloat($(obj).val().trim()));
+      var sh = isNaN(parseFloat($(obj).val().trim())) ? '0' : parseFloat($(obj).val().trim());
       map.push({ share: sh, userId: $(obj).data('id') });
     });
 
     var url;
     var type;
-    if(id===null){
-        url = '/api/expense/';
-        type = 'POST';
-    }else{
+    if (id === null) {
+      url = '/api/expense/';
+      type = 'POST';
+    } else {
       url = `/api/expense/${id}`;
       type = 'PUT';
     }
@@ -201,7 +222,7 @@ function sendExpense(id) {
         description: $('#description').val().trim(),
         category: $('#category').find(":selected").text(),
         date: $('#date').val(),
-        paidById: $('#paidBy').find(":selected").data('id'),
+        paidBy: $('#paidBy').find(":selected").data('id'),
         walletId: wallet.id,
         map: map
       },
