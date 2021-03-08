@@ -1,7 +1,7 @@
 // Requiring our models and passport as we've configured it
 const db = require("../models");
 const passport = require("../config/passport");
-
+const isAuthenticated = require("../config/middleware/isAuthenticated");
 
 module.exports = function (app) {
   // Using the passport.authenticate middleware with our local strategy.
@@ -39,7 +39,7 @@ module.exports = function (app) {
   });
 
   // Route for getting some data about our user to be used client side
-  app.get("/api/user_data", (req, res) => {
+  app.get("/api/user_data", isAuthenticated,(req, res) => {
     if (!req.user) {
       // The user is not logged in, send back an empty object
       res.json({});
@@ -54,7 +54,7 @@ module.exports = function (app) {
   });
 
   //Get route for getting all wallets
-  app.get("/api/wallets/", function (req, res) {
+  app.get("/api/wallets/", isAuthenticated, function (req, res) {
     db.Wallet.findAll({})
       .then(function (dbWallet) {
         res.json(dbWallet);
@@ -62,19 +62,36 @@ module.exports = function (app) {
   });
 
   // Get route for retrieving a single wallet
-  app.get("/api/wallets/:id", function (req, res) {
-    db.Wallet.findOne({
+  app.get("/api/wallets/:id", isAuthenticated, async function (req, res) {
+    var walletInfo = await db.Wallet.findOne({
+      include: [{ model: db.User, attributes: ['id', 'name', 'email']}],
       where: {
         id: req.params.id
       }
-    })
-      .then(function (dbWallet) {
-        res.json(dbWallet);
-      });
+    });
+    var expenses = await  db.Expense.findAll({
+      where: {
+        WalletId: req.params.id
+      }
+    });
+    var shares = await db.Expense.findAll({
+        attributes:['id', 'amount'],
+        include:[{model:db.Split, attributes:['share', 'userId'], required: true}],
+        where:{
+          WalletId: req.params.id
+        }
+    });
+
+
+
+    var response = {wallet: walletInfo, expenses: expenses, shares: shares};
+    res.status(200);
+    res.json(response);
+     
   });
 
   // POST route for saving a new wallet
-  app.post("/api/wallet", function (req, res) {
+  app.post("/api/wallet", isAuthenticated, function (req, res) {
     db.Wallet.create({
       title: req.body.title,
       category: req.body.category,
@@ -85,7 +102,7 @@ module.exports = function (app) {
   });
 
   // PUT route for updating wallet
-  app.put("/api/wallet/:id", function (req, res) {
+  app.put("/api/wallet/:id", isAuthenticated, function (req, res) {
     db.Wallet.update(req.body,
       {
         where: {
@@ -98,7 +115,7 @@ module.exports = function (app) {
   });
 
   //Get route for getting all expense
-  app.get("/api/expenses/:id", function (req, res) {
+  app.get("/api/expenses/:id", isAuthenticated, function (req, res) {
     db.Expense.findAll({
       where: {
         WalletId: req.params.id
@@ -111,18 +128,19 @@ module.exports = function (app) {
   
 
   // Get route for retrieving a single expense
-  app.get("/api/expense/:id", function (req, res) {
-    db.Split.findOne({
+  app.get("/api/expense/:id", isAuthenticated, function (req, res) {
+    db.Split.findAll({
       where: {
-        id: req.params.id
+        expenseId: req.params.id
       }
     }).then(function (dbSplit) {
+      res.status(200);
       res.json(dbSplit);
     });
   });
 
   // POST route for saving a new expense
-  app.post("/api/expense", async function (req, res) {
+  app.post("/api/expense", isAuthenticated, async function (req, res) {
     const t = await db.sequelize.transaction();
     try {
       // Then, we do some calls passing this transaction as an option:
@@ -132,16 +150,16 @@ module.exports = function (app) {
         description: req.body.description,
         category: req.body.category,
         date: req.body.date,
-        paidById: req.body.paidById,
-        WalletId: req.body.walletId
+        paidBy: req.body.paidBy,
+        walletId: req.body.walletId
       }, { transaction: t });
 
       var map = req.body.map;
       for (var i = 0; i < map.length; i++) {
         await db.Split.create({
           share: map[i].share,
-          UserId: map[i].userId,
-          ExpenseId: expense.id
+          userId: map[i].userId,
+          expenseId: expense.id
         }, { transaction: t });
       }
 
@@ -163,7 +181,7 @@ module.exports = function (app) {
   });
 
   // PUT route for updating an expense
-  app.put("/api/expense/:id", async function (req, res) {
+  app.put("/api/expense/:id", isAuthenticated, async function (req, res) {
     try {
       await db.Expense.update({
         title: req.body.title,
@@ -171,8 +189,8 @@ module.exports = function (app) {
         description: req.body.description,
         category: req.body.category,
         date: req.body.date,
-        paidById: req.body.paidById,
-        WalletId: req.body.walletId
+        paidBy: req.body.paidBy,
+        walletId: req.body.walletId
       },
         {
           where: {
@@ -186,8 +204,8 @@ module.exports = function (app) {
         },
           {
             where: {
-              ExpenseId: req.params.id,
-              UserId: map[i].userId
+              expenseId: req.params.id,
+              userId: map[i].userId
             }
           });
       }
