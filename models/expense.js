@@ -33,16 +33,9 @@ module.exports = function(sequelize, DataTypes){
     });
 
     Expense.associate = function(models) {
-        Expense.belongsTo(models.User, {
-            as: 'paidBy',
-            foreignKey: {
-                allowNull: false
-              }
-        });
-        Expense.belongsTo(models.Wallet,{
-            foreignKey: {
-                allowNull: false
-              }
+      
+        Expense.hasMany(models.Split,{
+            foreignKey: 'expenseId'
         });
       };
 

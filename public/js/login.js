@@ -8,27 +8,24 @@ $(document).ready(() => {
   loginForm.on("submit", event => {
     event.preventDefault();
     $("p").remove();
-    const userData = {
+    const user = {
       email: emailInput.val().trim(),
       password: passwordInput.val().trim()
     };
 
-    if (!userData.email || !userData.password) {
+    if (!user.email || !user.password) {
       return;
     }
 
     // If we have an email and password we run the loginUser function and clear the form
-    loginUser(userData.email, userData.password);
+    loginUser(user);
     emailInput.val("");
     passwordInput.val("");
   });
 
   // loginUser does a post to our "api/login" route and if successful, redirects us the the members page
-  function loginUser(email, password) {
-    $.post("/api/login", {
-      email: email,
-      password: password
-    })
+  function loginUser(user) {
+    $.post("/api/login", user)
       .then(() => {
         window.location.replace("/members");
         // If there's an error, log the error
