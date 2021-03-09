@@ -96,6 +96,7 @@ module.exports = function (app) {
       title: req.body.title,
       category: req.body.category,
       public: req.body.public,
+      owner: req.user.id,
     }).then(function (dbWallet) {
       res.json(dbWallet);
     });
