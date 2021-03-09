@@ -5,10 +5,8 @@ module.exports = function (sequelize, DataTypes) {
         title: {
             type: DataTypes.STRING,
             allowNull: false,
-            validate: {
-                len: [1 - 255],
-                msg: "error_wallet_name_size"
-            }
+            len: [1 - 255],
+            
         },
         category: {
             type: DataTypes.TEXT,
