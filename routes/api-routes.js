@@ -104,10 +104,16 @@ module.exports = function (app) {
 
   // PUT route for updating wallet
   app.put("/api/wallet/:id", isAuthenticated, function (req, res) {
-    db.Wallet.update(req.body,
+    db.Wallet.update({
+      title: req.body.title,
+      category: req.body.category,
+      public: req.body.public,
+      owner: req.user.id,
+      },
       {
         where: {
-          id: req.body.id
+          id: req.params.id,
+          onwer: req.user.id,
         }
       })
       .then(function (dbWallet) {
@@ -193,7 +199,8 @@ module.exports = function (app) {
       },
         {
           where: {
-            id: req.params.id
+            id: req.params.id,
+            onwer: req.user.id
           }
         });
       var map = req.body.map;
