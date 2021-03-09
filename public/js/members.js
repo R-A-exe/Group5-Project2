@@ -1,6 +1,7 @@
 
 var wallet = null;
 var users = new Map();
+var splits = new Map();
 var expenses = new Array();
 var categories;
 
@@ -8,7 +9,6 @@ $.get(`api/wallets/1`, (walletInfo, status) => {
   if (status != 'success') {
     alert("Something went wrong");
   } else {
-    console.log(walletInfo);
     wallet = walletInfo.wallet;
     walletInfo.wallet.Users.forEach(e => {
       users.set(e.id, { id: e.id, email: e.email, name: e.name, paid: 0.0, owes: 0.0 });
@@ -18,11 +18,13 @@ $.get(`api/wallets/1`, (walletInfo, status) => {
       expenses.push(e);
     });
     walletInfo.shares.forEach(e => {
+
+      splits.set(e.id, e.Splits);
+      console.log(splits);
       e.Splits.forEach(s => {
         users.get(s.userId).owes += parseFloat(e.amount) * parseFloat(s.share);
       });
     });
-    console.log(users);
     categories = wallet.category.split("|");
   }
 }).then(() => {
@@ -71,40 +73,40 @@ function loadExpenses() {
 
 $(document).on('click', '.expense', function (e) {
   var id = $(this).data('id');
-  $.get(`/api/expense/${id}`, (expenseInfo, expStatus) => {
-    if (expStatus != 'success') {
-      alert("Something went wrong");
-    } else {
-      var expense = expenses.find(e => e.id == id);
-      $('#modelTitle').text('Expense Details');
-      $('#title').val(expense.title);
-      $('#amount').val(expense.amount);
-      for (cat of categories) {
-        $('#category').append(`<option value="${cat}">${cat}</option>`);
-      }
-      $('#category').append(`<option>Other</option>`);
-      $(`#category option[value=${expense.category}]`).attr('selected', 'selected');
-      $('#description').val(expense.description);
-      $('#date').val(expense.date);
 
-      for (let [id, user] of users) {
-        $('#paidBy').append(`<option data-id=${id} value="${user.name}">${user.name}</option>`);
-      }
-      $(`#paidBy option[value="${users.get(expense.paidBy).name}"]`).attr('selected', 'selected');
-      for (let [id, user] of users) {
-        var input = $('<input>');
-        input.val(expenseInfo.find(e => e.userId == id).share);
-        input.attr('data-id', id);
-        var shareLine = $('<tr>');
-        shareLine.addClass('shareLine');
-        var userName = $('<td>');
-        userName.text(user.name);
-        shareLine.append(userName).append(input);
-        $("#split table").append(shareLine).append();
-      }
-      $('#modal').css('display', 'block');
-    }
-  });
+  var expense = expenses.find(e => e.id == id);
+  $('#modelTitle').text('Expense Details');
+  $('#title').val(expense.title);
+  $('#amount').val(expense.amount);
+
+  for (cat of categories) {
+    $('#category').append(`<option value="${cat}">${cat}</option>`);
+  }
+  $('#category').append(`<option>Other</option>`);
+  $(`#category option[value=${expense.category}]`).attr('selected', 'selected');
+  $('#description').val(expense.description);
+  $('#date').val(expense.date);
+
+  for (let [id, user] of users) {
+    $('#paidBy').append(`<option data-id=${id} value="${user.name}">${user.name}</option>`);
+  }
+
+  $(`#paidBy option[value="${users.get(expense.paidBy).name}"]`).attr('selected', 'selected');
+
+  var shares = splits.get(id);
+  for (let [id, user] of users) {
+    var input = $('<input>');
+    input.val(shares.find(e => e.userId == id).share);
+    input.attr('data-id', id);
+    var shareLine = $('<tr>');
+    shareLine.addClass('shareLine');
+    var userName = $('<td>');
+    userName.text(user.name);
+    shareLine.append(userName).append(input);
+    $("#split table").append(shareLine).append();
+  }
+
+  $('#modal').css('display', 'block');
 
   $("#submit-btn").click(e => {
     e.preventDefault();

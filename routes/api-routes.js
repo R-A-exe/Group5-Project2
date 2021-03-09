@@ -2,7 +2,7 @@
 const db = require("../models");
 const passport = require("../config/passport");
 const isAuthenticated = require("../config/middleware/isAuthenticated");
-
+const { Op } = require("sequelize");
 module.exports = function (app) {
   // Using the passport.authenticate middleware with our local strategy.
   // If the user has valid login credentials, send them to the members page.
@@ -39,7 +39,7 @@ module.exports = function (app) {
   });
 
   // Route for getting some data about our user to be used client side
-  app.get("/api/user_data", isAuthenticated,(req, res) => {
+  app.get("/api/user_data", isAuthenticated, (req, res) => {
     if (!req.user) {
       // The user is not logged in, send back an empty object
       res.json({});
@@ -54,40 +54,85 @@ module.exports = function (app) {
   });
 
   //Get route for getting all wallets
-  app.get("/api/wallets/", isAuthenticated, function (req, res) {
-    db.Wallet.findAll({})
-      .then(function (dbWallet) {
-        res.json(dbWallet);
-      });
+  app.get("/api/wallets/", isAuthenticated, async function (req, res) {
+    var private = await db.Wallet.findAll({
+      where: {
+        owner: req.user.id,
+        public: false
+      }
+    });
+
+    var public = await db.Wallet.findAll({
+      where: {
+        owner: req.user.id,
+        public: true
+      }
+    })
+    var shared = await db.Wallet.findAll({
+      include: [{
+        model: db.User,
+        attributes: ['id'],
+        where: {
+          id: req.user.id,
+        }
+      }],
+      where: { [Op.not]: [{ owner: req.user.id }] }
+
+    });
+
+    res.json({ private: private, public: public, shared: shared });
+
   });
 
   // Get route for retrieving a single wallet
   app.get("/api/wallets/:id", isAuthenticated, async function (req, res) {
-    var walletInfo = await db.Wallet.findOne({
-      include: [{ model: db.User, attributes: ['id', 'name', 'email']}],
+
+    var validate = await db.Wallet.findOne({
+      include: [{
+        model: db.User,
+        attributes: ['id'],
+        where: {
+          id: req.user.id,
+        }
+      }],
       where: {
         id: req.params.id
       }
-    });
-    var expenses = await  db.Expense.findAll({
-      where: {
-        WalletId: req.params.id
-      }
-    });
-    var shares = await db.Expense.findAll({
-        attributes:['id', 'amount'],
-        include:[{model:db.Split, attributes:['share', 'userId'], required: true}],
-        where:{
+    }
+    );
+
+    if (validate) {
+
+      var walletInfo = await db.Wallet.findOne({
+        include: [{
+          model: db.User,
+          attributes: ['id', 'name', 'email'],
+        }],
+        where: {
+          id: req.params.id
+        }
+      });
+      var expenses = await db.Expense.findAll({
+        where: {
           WalletId: req.params.id
         }
-    });
+      });
+      var shares = await db.Expense.findAll({
+        attributes: ['id', 'amount'],
+        include: [{ model: db.Split, attributes: ['share', 'userId'], required: true }],
+        where: {
+          WalletId: req.params.id
+        }
+      });
 
+      var response = { wallet: walletInfo, expenses: expenses, shares: shares };
+      res.status(200);
+      res.json(response);
+    } else {
+      res.status(401);
+      res.send('Unauthorized')
+    }
 
-
-    var response = {wallet: walletInfo, expenses: expenses, shares: shares};
-    res.status(200);
-    res.json(response);
-     
   });
 
   // POST route for saving a new wallet
@@ -103,17 +148,16 @@ module.exports = function (app) {
   });
 
   // PUT route for updating wallet
-  app.put("/api/wallet/:id", isAuthenticated, function (req, res) {
+  app.put("/api/wallets/:id", isAuthenticated, function (req, res) {
     db.Wallet.update({
       title: req.body.title,
       category: req.body.category,
-      public: req.body.public,
       owner: req.user.id,
-      },
+    },
       {
         where: {
           id: req.params.id,
-          onwer: req.user.id,
+          owner: req.user.id,
         }
       })
       .then(function (dbWallet) {
@@ -121,31 +165,24 @@ module.exports = function (app) {
       });
   });
 
-  //Get route for getting all expense
-  app.get("/api/expenses/:id", isAuthenticated, function (req, res) {
-    db.Expense.findAll({
-      where: {
-        WalletId: req.params.id
-      }
-    }).then(function (dbExpense) {
-      res.json(dbExpense);
-    });
-  });
-
-  // Get route for retrieving a single expense
-  app.get("/api/expense/:id", isAuthenticated, function (req, res) {
-    db.Split.findAll({
-      where: {
-        expenseId: req.params.id
-      }
-    }).then(function (dbSplit) {
-      res.status(200);
-      res.json(dbSplit);
-    });
-  });
 
   // POST route for saving a new expense
   app.post("/api/expense", isAuthenticated, async function (req, res) {
+
+
+    var validate = await db.Wallet.findOne({
+      include: [{
+        model: db.User,
+        attributes: ['id'],
+        where: {
+          id: req.user.id,
+        }
+      }], where: {id: req.body.walletId}
+    }
+    );
+
+    if (validate) {
+
     const t = await db.sequelize.transaction();
     try {
       // Then, we do some calls passing this transaction as an option:
@@ -180,13 +217,28 @@ module.exports = function (app) {
       await t.rollback();
       res.status(400)
       res.send(error)
-
-
     }
-  });
+  }else{
+    res.status(401);
+    res.send('unauthorized');
+  }
+});
 
   // PUT route for updating an expense
   app.put("/api/expense/:id", isAuthenticated, async function (req, res) {
+
+    var validate = await db.Wallet.findOne({
+      include: [{
+        model: db.User,
+        attributes: ['id'],
+        where: {
+          id: req.user.id,
+        }
+      }], where: {id: req.body.walletId}
+    }
+    );
+
+    if (validate) {
     try {
       await db.Expense.update({
         title: req.body.title,
@@ -200,7 +252,6 @@ module.exports = function (app) {
         {
           where: {
             id: req.params.id,
-            onwer: req.user.id
           }
         });
       var map = req.body.map;
@@ -221,5 +272,9 @@ module.exports = function (app) {
       res.status(400);
       res.send(e);
     }
-  });
+  }else{
+    res.status(401);
+    res.send('unauthorized')
+  }
+});
 }
