@@ -64,6 +64,7 @@ module.exports = function (app) {
         password: req.body.password
       });
     } catch (err) {
+      console.log(err)
       return err;
     }
     return user;
@@ -375,7 +376,7 @@ module.exports = function (app) {
 
     var invite = await db.Invite.create({
       email: email,
-      token: "" + Math.random() * 10000,
+      token: "" + Math.random() * 999999999999999999999999999,
       walletId: wallet
     });
 
