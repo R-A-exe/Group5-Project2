@@ -390,7 +390,7 @@ module.exports = function (app) {
       service: 'gmail',
       auth: {
         user: 'splitish.invite@gmail.com',
-        pass: ''
+        pass: process.env.email_password
       }
     });
     
