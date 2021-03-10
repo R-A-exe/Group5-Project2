@@ -32,9 +32,9 @@ module.exports = function (app) {
   });
 
   app.post("/api/signup/:token", async (req, res) => {
+    var user = await signup(req);
     if (user) {
       try {
-        var user = await signup(req);
         var wallet = await db.Wallet.findOne({
           include: [{
             model: db.Invite,
@@ -64,7 +64,6 @@ module.exports = function (app) {
         password: req.body.password
       });
     } catch (err) {
-      console.log(err)
       return err;
     }
     return user;
@@ -376,7 +375,7 @@ module.exports = function (app) {
 
     var invite = await db.Invite.create({
       email: email,
-      token: "" + Math.random() * 999999999999999999999999999,
+      token: "" + Math.random() * 9999999999999999,
       walletId: wallet
     });
 
