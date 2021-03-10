@@ -3,7 +3,7 @@ var wallet = null;
 var users = new Map();
 var splits = new Map();
 var expenses = new Array();
-var categories;
+var categories = null;
 
 $.get(`api/wallets/1`, (walletInfo, status) => {
   if (status != 'success') {
@@ -208,10 +208,10 @@ function sendExpense(id) {
     var url;
     var type;
     if (id === null) {
-      url = '/api/expense/';
+      url = '/api/expenses/';
       type = 'POST';
     } else {
-      url = `/api/expense/${id}`;
+      url = `/api/expenses/${id}`;
       type = 'PUT';
     }
 
