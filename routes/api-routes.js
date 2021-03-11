@@ -187,23 +187,28 @@ module.exports = function (app) {
 
   // POST route for saving a new wallet
   app.post("/api/wallets", isAuthenticated, async function (req, res) {
-    var wallet = await db.Wallet.create({
-      title: req.body.title,
-      category: req.body.category,
-      public: req.body.public,
-      owner: req.user.id,
-    });
-
+    try {
+      var wallet = await db.Wallet.create({
+        title: req.body.title,
+        category: req.body.category,
+        public: req.body.public,
+        owner: req.user.id,
+      });
+    } catch (err) {
+      res.status(400).send('could not add item');
+      return;
+    }
     await wallet.addUser(req.user.id, { through: { selfGranted: false } });
 
-    if (req.body.public) {
-      for (email of req.body.emails) {
-
+    if (wallet.public && req.body.emails) {
+      for (var i = 0; i < req.body.emails.length; i++) {
+        var email = req.body.emails[i]
         var user = await db.User.findOne({
           where: {
             email: email
           }
         });
+
         if (user) {
           await wallet.addUser(user, { through: { selfGranted: false } });
         } else {
@@ -241,7 +246,7 @@ module.exports = function (app) {
     }
 
     if (wallet.public && req.body.emails) {
-      for (var i = 0; i<req.body.emails.length; i++) {
+      for (var i = 0; i < req.body.emails.length; i++) {
         var email = req.body.emails[i]
         var user = await db.User.findOne({
           where: {

@@ -36,7 +36,7 @@ $(document).ready(() => {
         }
     });
 
-    //Append card
+    //Load wallets
     function createCard(wallet, owned) {
 
         var first = `<div class="col-md-6 col-lg-4">
@@ -65,7 +65,7 @@ $(document).ready(() => {
         return card;
     }
 
-    //View Wallet
+    //View Wallet details
     $(document).on('click', ".walletCard", function () {
         location.href = `wallet.html?id=${$(this).data('id')}`
     });
@@ -76,8 +76,6 @@ $(document).ready(() => {
         e.stopPropagation();
         e.preventDefault();
 
-        var newCat = "";
-        var newUser = new Array();
         var wallet = wallets.get($(this).data('id'));
         $('#modalTitle').text('Edit Wallet');
         $('#wallet-title').val(wallet.title);
@@ -97,186 +95,107 @@ $(document).ready(() => {
             });
         }
 
-        $('#cat-btn').click(e => {
-            e.preventDefault();
-            var text = $('#wallet-cat').val().trim();
-            if (text != '') {
-                newCat += text + '|';
-                $("#cat-list").append(text);
-                $("#wallet-cat").val("")
-            }
-        });
-
-        $('#user-btn').click(el => {
-            e.preventDefault();
-            var text = $('#user-email').val().trim();
-            if (text != '') {
-                newUser.push(text);
-                $('#user-list').append(text);
-                $('#user-email').val("");
-            }
-        });
-
-        $('#walletsub-btn').click(e => {
-            console.log(newUser)
-            e.preventDefault();
-            if ($('#wallet-title').val().trim() == '') {
-                $('#wallet-title').after('<p class="red" id="amountError">Please enter a valid title</p>');
-                return;
-            } else {
-                $('#modal .red').remove();
-                $.ajax({
-                    type: 'PUT',
-                    url: `/api/wallets/${wallet.id}`,
-                    data: {
-                        title: $('#wallet-title').val().trim(),
-                        category: newCat,
-                        emails: newUser
-                    },
-                    success: function (res) {
-                        alert('Added!')
-                        closeModal();
-                        location.reload();
-                    },
-                    error: function (err) {
-                        console.log(err);
-                        alert('Could not make changes!')
-                    }
-                });
-            }
-        });
-        $('#modal').css('display', 'block');
+        loadModal(wallet);
     });
 
 
+    //Add new wallet  
 
+    $('#newWallet').click(e => {
+        e.preventDefault();
 
+        $('#modalTitle').text('New Wallet');
+        $("#privateBtn").prop("checked", true);
 
-
-
-    $(document).on('click', '.expense', function (e) {
-        var id = $(this).data('id');
-
-        var expense = expenses.find(e => e.id == id);
-        $('#modelTitle').text('Expense Details');
-        $('#title').val(expense.title);
-        $('#amount').val(expense.amount);
-
-        for (cat of categories) {
-            $('#category').append(`<option value="${cat}">${cat}</option>`);
-        }
-        $('#category').append(`<option>Other</option>`);
-        $(`#category option[value=${expense.category}]`).attr('selected', 'selected');
-        $('#description').val(expense.description);
-        $('#date').val(expense.date);
-
-        for (let [id, user] of users) {
-            $('#paidBy').append(`<option data-id=${id} value="${user.name}">${user.name}</option>`);
-        }
-
-        $(`#paidBy option[value="${users.get(expense.paidBy).name}"]`).attr('selected', 'selected');
-
-        var shares = splits.get(id);
-        for (let [id, user] of users) {
-            var input = $('<input>');
-            input.val(shares.find(e => e.userId == id).share);
-            input.attr('data-id', id);
-            var shareLine = $('<tr>');
-            shareLine.addClass('shareLine');
-            var userName = $('<td>');
-            userName.text(user.name);
-            shareLine.append(userName).append(input);
-            $("#split table").append(shareLine).append();
-        }
-
-        $('#modal').css('display', 'block');
-
-        $("#submit-btn").click(e => {
-            e.preventDefault();
-            sendExpense(id);
-
-        });
+       loadModal();
 
     });
 
 
 
+//Load modal
+function loadModal(wallet){
 
+    var newCat = "";
+    var newUser = new Array();
+    
+    $('#cat-btn').click(e => {
+        e.preventDefault();
+        var text = $('#wallet-cat').val().trim();
+        if (text != '') {
+            newCat += text + '|';
+            $("#cat-list").append(text);
+            $("#wallet-cat").val("")
+        }
+    });
 
+    $('#user-btn').click(el => {
+        e.preventDefault();
+        var text = $('#user-email').val().trim();
+        if (text != '') {
+            newUser.push(text);
+            $('#user-list').append(text);
+            $('#user-email').val("");
+        }
+    });
 
+    var type;
+    var url;
+    var data;
+    
+    if(wallet){
+        type = 'PUT';
+        url = `/api/wallets/${wallet.id}`;
+        data=  {
+            title: $('#wallet-title').val().trim(),
+            category: newCat,
+            emails: newUser
+        }
+    }else{
+        type = 'POST';
+        url = '/api/wallets';
+        data={
+            title: $('#wallet-title').val().trim(),
+            category: newCat,
+            public: !$("#privateBtn").prop("checked"),
+            email: newUser
+        }
+    }
 
+    $('#walletsub-btn').click(e => {
+        e.preventDefault();
+        if ($('#wallet-title').val().trim() == '') {
+            $('#wallet-title').after('<p class="red" id="amountError">Please enter a valid title</p>');
+            return;
+        } else {
+            $('#modal .red').remove();
+            $.ajax({
+                type: type,
+                url: url,
+                data: data,
+                success: function (res) {
+                    alert('Added!')
+                    closeModal();
+                    location.reload();
+                },
+                error: function (err) {
+                    console.log(err);
+                    alert('Could not make changes!')
+                }
+            });
+        }
+    });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //////Add new wallet modal//////
-    var title = $("#wallet-title");
-    userEmail();
-
-    $("#close").on("click", function () {
+    $('#close').click(e=>{
+        e.preventDefault();
         closeModal();
-    });
+    })
 
-    // $("#cat-btn").click(function (e) {
-    //     e.preventDefault();
-    //     catInput = $("input#wallet-cat").val().trim();
-    //     var catli = $("<li id='cat'>");
-    //     catli.text(catInput);
-    //     $("#cat-list").append(catli);
-    //     $("input#wallet-cat").val("")
-    // })
+    $('#modal').css('display', 'block');
+}
 
-    var emailArr = [];
-    function userEmail() {
-        // $("#user-btn").click(function (e) {
-        //     e.preventDefault();
-        //     emailInput = $("input#user-email").val();
-        //     emailArr.push(emailInput)
 
-        //     var list = "";
-        //     for (var i = 0; i < emailArr.length; i++) {
-        //         list += "<li id='user'>" + emailArr[i] + "</li>";
-        //     }
-        //     $("#user-list").append(list);
-        //     $("input#user-email").val("")
-        // })
-    }
-
-    // $("#walletsub-btn").on("click", function (event) {
-    //     event.preventDefault();
-    //     alert("test")
-    //     createWallet();
-    //     closeModal();
-    //     location.reload();
-    // })
-
-    function createWallet() {
-        var wallet = {
-            title: title.val().trim(),
-            category: $("input#wallet-cat").val(),
-            public: $('#exampleRadios1').is(':checked'),
-        }
-
-        console.log(wallet)
-
-        $.post("/api/wallet", wallet, function () {
-            closeModal();
-        });
-
-    }
-
+//Handle close click
     function closeModal() {
 
         $("#wallet-title").val('');
@@ -288,47 +207,4 @@ $(document).ready(() => {
         $('#modal').css('display', 'none');
     }
 
-    //////Add new wallet end//////
-
-
-
-
-})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+});

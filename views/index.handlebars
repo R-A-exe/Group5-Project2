@@ -35,9 +35,7 @@
                     </div>
                 </div>
                 <div class="card mt-3">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-                        Add Wallet
-                    </button>
+                    <button id="newWallet" type="button" class="btn btn-primary">Add Wallet</button>
                     <!--Add Wallet Modal -->
                       <div id="modal" class="modal">
                         <div class="modal-dialog">
@@ -71,13 +69,13 @@
                                                 </div>
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio" name="exampleRadios"
-                                                        id="exampleRadios1" value="true">
+                                                        id="publicBtn" value="true">
                                                     <label class="form-check-label" for="exampleRadios1">Public</label>
                                                 </div>
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio" name="exampleRadios"
-                                                        id="exampleRadios2" value="false">
-                                                    <label class="form-check-label" for="exampleRadios2">Private</label>
+                                                        id="privateBtn" value="false">
+                                                    <label class="form-check-label active" for="exampleRadios2">Private</label>
                                                 </div>
                                             </div>
                                             <div>
