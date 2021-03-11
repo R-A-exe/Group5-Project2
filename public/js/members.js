@@ -75,7 +75,8 @@ $(document).ready(() => {
 
         e.stopPropagation();
         e.preventDefault();
-
+        
+        $('#usersDiv').hide() 
         var wallet = wallets.get($(this).data('id'));
         $('#modalTitle').text('Edit Wallet');
         $('#wallet-title').val(wallet.title);
@@ -86,10 +87,16 @@ $(document).ready(() => {
         $('#publicPrivate').hide();
 
         if (wallet.public) {
+            $('#usersDiv').show() 
             $.get(`/api/users/${wallet.id}`, (data) => {
-                if (data.length > 0) {
-                    for (email of data) {
+                if (data.added.length > 0) {
+                    for (email of data.added) {
                         $("#user-list").append(`<li> ${email.email} </li>`);
+                    }
+                }
+                if (data.added.length > 0) {
+                    for (email of data.invited) {
+                        $("#user-list").append(`<li> ${email.email} - invited</li>`);
                     }
                 }
             });
@@ -106,6 +113,7 @@ $(document).ready(() => {
 
         $('#modalTitle').text('New Wallet');
         $("#privateBtn").prop("checked", true);
+        $('#usersDiv').hide() 
 
         loadModal();
 
@@ -137,6 +145,14 @@ $(document).ready(() => {
                 $('#user-list').append(`<li>${text}</li>`);
                 $('#user-email').val("");
             }
+        });
+
+        $("#publicBtn").change(function(){
+           $('#usersDiv').show();
+        });
+
+        $("#privateBtn").change(function(){
+           $('#usersDiv').hide();
         });
 
         $('#walletsub-btn').click(e => {

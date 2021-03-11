@@ -37,7 +37,7 @@
                 <div class="card mt-3">
                     <button id="newWallet" type="button" class="btn btn-primary">Add Wallet</button>
                     <!--Add Wallet Modal -->
-                      <div id="modal" class="modal">
+                    <div id="modal" class="modal">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -75,21 +75,24 @@
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio" name="exampleRadios"
                                                         id="privateBtn" value="false">
-                                                    <label class="form-check-label active" for="exampleRadios2">Private</label>
+                                                    <label class="form-check-label active"
+                                                        for="exampleRadios2">Private</label>
                                                 </div>
                                             </div>
-                                            <div>
-                                                <label for="exampleFormControlSelect1">Users</label>
-                                            </div>
-                                            <div class="input-group">
-                                                <input type="text" id="user-email" class="form-control">
-                                                <span class="input-group-btn">
-                                                    <button class="btn btn-primary" id="user-btn"
-                                                        type="button">Add</button>
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <ul id="user-list"></ul>
+                                            <div id="usersDiv">
+                                                <div>
+                                                    <label for="exampleFormControlSelect1">Users</label>
+                                                </div>
+                                                <div class="input-group">
+                                                    <input type="text" id="user-email" class="form-control">
+                                                    <span class="input-group-btn">
+                                                        <button class="btn btn-primary" id="user-btn"
+                                                            type="button">Add</button>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <ul id="user-list"></ul>
+                                                </div>
                                             </div>
                                     </form>
                                 </div>
@@ -123,18 +126,18 @@
                 </h2>
                 <hr>
                 <div class="container">
-                   <div id="publicWallets" class="row">
+                    <div id="publicWallets" class="row">
 
                     </div>
                 </div>
             </div>
-             <div class="row">
+            <div class="row">
                 <h2>
                     Shared with you
                 </h2>
                 <hr>
                 <div class="container">
-                   <div id="sharedWallets" class="row">
+                    <div id="sharedWallets" class="row">
 
                     </div>
                 </div>

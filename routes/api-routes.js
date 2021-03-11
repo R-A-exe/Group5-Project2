@@ -122,7 +122,7 @@ module.exports = function (app) {
     var added = await sequelize.query(`SELECT Users.email FROM wallet_user JOIN Users ON wallet_user.userId = Users.id WHERE wallet_user.walletId = ${req.params.id}`, { type: sequelize.QueryTypes.SELECT });
     var invited = await db.Invite.findAll({where:{walletId: req.params.id}})
 
-    if (walletInfo.find(e => e.email == req.user.email)) {
+    if (added.find(e => e.email == req.user.email)) {
       res.json({added: added, invited: invited});
     } else {
       res.status(401).send('unauthorized');
