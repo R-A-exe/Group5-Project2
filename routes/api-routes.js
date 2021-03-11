@@ -13,7 +13,7 @@ module.exports = function (app) {
   // Otherwise the user will be sent an error
   app.post("/api/login", passport.authenticate("local"), (req, res) => {
     // Sending back a password, even a hashed password, isn't a good idea
-  
+
     res.json({
       email: req.user.email,
       id: req.user.id
@@ -47,7 +47,7 @@ module.exports = function (app) {
           }]
         });
         await wallet.addUser(user, { through: { selfGranted: false } });
-        await db.Invite.destroy({ where: { token: req.params.token, email:user.email, walletId: wallet.id } });
+        await db.Invite.destroy({ where: { token: req.params.token, email: user.email, walletId: wallet.id } });
         res.redirect(307, "/api/login");
       } catch (err) {
         res.status(401).send('unauthorized');
@@ -94,7 +94,7 @@ module.exports = function (app) {
 
   //Get route for getting all wallets
   app.get("/api/wallets/", isAuthenticated, async function (req, res) {
-  
+
     var private = await db.Wallet.findAll({
       where: {
         owner: req.user.id,
@@ -111,19 +111,19 @@ module.exports = function (app) {
 
     var shared = await sequelize.query(
       `SELECT Wallets.id, Wallets.title, Wallets.category, Wallets.public ,Wallets.createdAt, Wallets.updatedAt, Users.name as owner FROM Wallets JOIN Users ON Wallets.owner = Users.id JOIN wallet_user ON Wallets.id = wallet_user.walletId WHERE wallet_user.userId = ${req.user.id} AND NOT Wallets.owner = ${req.user.id}`,
-      {type: sequelize.QueryTypes.SELECT}
+      { type: sequelize.QueryTypes.SELECT }
     );
 
-    res.json({private: private, public: public, shared: shared });
+    res.json({ private: private, public: public, shared: shared });
 
   });
 
-  app.get("/api/users/:id", isAuthenticated, async function (req, res){
-    var walletInfo = await sequelize.query(`SELECT Users.email FROM wallet_user JOIN Users ON wallet_user.userId = Users.id WHERE wallet_user.walletId = ${req.params.id}`,{type: sequelize.QueryTypes.SELECT});
+  app.get("/api/users/:id", isAuthenticated, async function (req, res) {
+    var walletInfo = await sequelize.query(`SELECT Users.email FROM wallet_user JOIN Users ON wallet_user.userId = Users.id WHERE wallet_user.walletId = ${req.params.id}`, { type: sequelize.QueryTypes.SELECT });
 
-    if(walletInfo.find(e=>e.email == req.user.email)){
+    if (walletInfo.find(e => e.email == req.user.email)) {
       res.json(walletInfo);
-    }else{
+    } else {
       res.status(401).send('unauthorized');
     }
 
@@ -170,8 +170,8 @@ module.exports = function (app) {
         }
       });
       var invited = await db.Invite.findAll({
-        where:{
-          walletId:req.params.id
+        where: {
+          walletId: req.params.id
         }
       })
 
@@ -218,27 +218,31 @@ module.exports = function (app) {
   // PUT route for updating wallet
   app.put("/api/wallets/:id", isAuthenticated, async function (req, res) {
 
+    console.log(req.body.category);
+
+
     var wallet = await db.Wallet.findOne({
       where: {
         id: req.params.id,
         owner: req.user.id
       }
     });
-    await db.Wallet.update({
-      title: req.body.title,
-      category: req.body.category,
-      owner: req.user.id,
-    },
-      {
-        where: {
-          id: req.params.id,
-          owner: req.user.id
-        }
-      });
+    if (req.body.title && req.body.category) {
+      await db.Wallet.update({
+        title: req.body.title,
+        category: sequelize.fn('CONCAT', sequelize.col("category"), req.body.category),
+      },
+        {
+          where: {
+            id: req.params.id,
+            owner: req.user.id
+          }
+        });
+    }
 
-    if (req.body.public) {
-      for (email of req.body.emails) {
-
+    if (wallet.public && req.body.emails) {
+      for (var i = 0; i<req.body.emails.length; i++) {
+        var email = req.body.emails[i]
         var user = await db.User.findOne({
           where: {
             email: email
@@ -388,9 +392,9 @@ module.exports = function (app) {
     });
 
     var link;
-    if(host=='localhost:8080'){
+    if (host == 'localhost:8080') {
       link = `http://localhost:8080/signup.html?id=${invite.token}`
-    }else{
+    } else {
       link = `https://${host}/signup.html?id=${invite.token}`
     }
 
@@ -401,22 +405,22 @@ module.exports = function (app) {
         pass: process.env.email_password
       }
     });
-    
+
     var mailOptions = {
       from: 'splitish.invite@gmail.com',
       to: email,
       subject: `${name} invited you to share a wallet!`,
-      html:`<h1>Get started with SplitIsh</h1><p>${name} has invited you to share a wallet, click <a href="${link}">here</a> to signup and get started!</p>`
+      html: `<h1>Get started with SplitIsh</h1><p>${name} has invited you to share a wallet, click <a href="${link}">here</a> to signup and get started!</p>`
     }
-    
-    transporter.sendMail(mailOptions, function(error, info){
+
+    transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
         console.log(error);
       } else {
         console.log('Email sent: ' + info.response);
       }
     });
-    
+
 
 
   }
