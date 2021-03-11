@@ -107,95 +107,97 @@ $(document).ready(() => {
         $('#modalTitle').text('New Wallet');
         $("#privateBtn").prop("checked", true);
 
-       loadModal();
+        loadModal();
 
     });
 
 
 
-//Load modal
-function loadModal(wallet){
+    //Load modal
+    function loadModal(wallet) {
 
-    var newCat = "";
-    var newUser = new Array();
-    
-    $('#cat-btn').click(e => {
-        e.preventDefault();
-        var text = $('#wallet-cat').val().trim();
-        if (text != '') {
-            newCat += text + '|';
-            $("#cat-list").append(text);
-            $("#wallet-cat").val("")
-        }
-    });
+        var newCat = "";
+        var newUser = new Array();
 
-    $('#user-btn').click(el => {
-        e.preventDefault();
-        var text = $('#user-email').val().trim();
-        if (text != '') {
-            newUser.push(text);
-            $('#user-list').append(text);
-            $('#user-email').val("");
-        }
-    });
+        $('#cat-btn').click(e => {
+            e.preventDefault();
+            var text = $('#wallet-cat').val().trim();
+            if (text != '') {
+                newCat += (text + '|');
+                $("#cat-list").append(`<li>${text}</li>`);
+                $("#wallet-cat").val("")
+            }
+        });
 
-    var type;
-    var url;
-    var data;
-    
-    if(wallet){
-        type = 'PUT';
-        url = `/api/wallets/${wallet.id}`;
-        data=  {
-            title: $('#wallet-title').val().trim(),
-            category: newCat,
-            emails: newUser
-        }
-    }else{
-        type = 'POST';
-        url = '/api/wallets';
-        data={
-            title: $('#wallet-title').val().trim(),
-            category: newCat,
-            public: !$("#privateBtn").prop("checked"),
-            email: newUser
-        }
+        $('#user-btn').click(e => {
+            e.preventDefault();
+            var text = $('#user-email').val().trim();
+            if (text != '') {
+                newUser.push(text);
+                $('#user-list').append(`<li>${text}</li>`);
+                $('#user-email').val("");
+            }
+        });
+
+        $('#walletsub-btn').click(e => {
+            e.preventDefault();
+            if ($('#wallet-title').val().trim() == '') {
+                $('#wallet-title').after('<p class="red" id="amountError">Please enter a valid title</p>');
+                return;
+            } else {
+                $('#modal .red').remove();
+
+                var type;
+                var url;
+                var data;
+
+                if (wallet) {
+                    type = 'PUT';
+                    url = `/api/wallets/${wallet.id}`;
+                    data = {
+                        title: $('#wallet-title').val().trim(),
+                        category: newCat,
+                        emails: newUser
+                    }
+                } else {
+                    type = 'POST';
+                    url = '/api/wallets';
+                    data = {
+                        title: $('#wallet-title').val().trim(),
+                        category: newCat,
+                        public: !$("#privateBtn").prop("checked"),
+                        emails: newUser
+                    }
+                    console.log(newCat);
+                }
+
+                $.ajax({
+                    type: type,
+                    url: url,
+                    data: data,
+                    success: function (res) {
+                        alert('Added!')
+                        closeModal();
+                        location.reload();
+                    },
+                    error: function (err) {
+                        console.log(err);
+                        alert('Could not make changes!')
+                    }
+                });
+            }
+        });
+
+        $('#close').click(e => {
+            e.preventDefault();
+            closeModal();
+        })
+
+        $('#modal').css('display', 'block');
     }
 
-    $('#walletsub-btn').click(e => {
-        e.preventDefault();
-        if ($('#wallet-title').val().trim() == '') {
-            $('#wallet-title').after('<p class="red" id="amountError">Please enter a valid title</p>');
-            return;
-        } else {
-            $('#modal .red').remove();
-            $.ajax({
-                type: type,
-                url: url,
-                data: data,
-                success: function (res) {
-                    alert('Added!')
-                    closeModal();
-                    location.reload();
-                },
-                error: function (err) {
-                    console.log(err);
-                    alert('Could not make changes!')
-                }
-            });
-        }
-    });
 
-    $('#close').click(e=>{
-        e.preventDefault();
-        closeModal();
-    })
-
-    $('#modal').css('display', 'block');
-}
-
-
-//Handle close click
+    //Handle close click
     function closeModal() {
 
         $("#wallet-title").val('');

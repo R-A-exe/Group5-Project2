@@ -119,10 +119,11 @@ module.exports = function (app) {
   });
 
   app.get("/api/users/:id", isAuthenticated, async function (req, res) {
-    var walletInfo = await sequelize.query(`SELECT Users.email FROM wallet_user JOIN Users ON wallet_user.userId = Users.id WHERE wallet_user.walletId = ${req.params.id}`, { type: sequelize.QueryTypes.SELECT });
+    var added = await sequelize.query(`SELECT Users.email FROM wallet_user JOIN Users ON wallet_user.userId = Users.id WHERE wallet_user.walletId = ${req.params.id}`, { type: sequelize.QueryTypes.SELECT });
+    var invited = await db.Invite.findAll({where:{walletId: req.params.id}})
 
     if (walletInfo.find(e => e.email == req.user.email)) {
-      res.json(walletInfo);
+      res.json({added: added, invited: invited});
     } else {
       res.status(401).send('unauthorized');
     }
@@ -222,9 +223,6 @@ module.exports = function (app) {
 
   // PUT route for updating wallet
   app.put("/api/wallets/:id", isAuthenticated, async function (req, res) {
-
-    console.log(req.body.category);
-
 
     var wallet = await db.Wallet.findOne({
       where: {
