@@ -5,6 +5,7 @@ const isAuthenticated = require("../config/middleware/isAuthenticated");
 const nodemailer = require('nodemailer');
 const { Op } = require("sequelize");
 const e = require("express");
+const { sequelize } = require("../models");
 
 module.exports = function (app) {
   // Using the passport.authenticate middleware with our local strategy.
@@ -93,6 +94,7 @@ module.exports = function (app) {
 
   //Get route for getting all wallets
   app.get("/api/wallets/", isAuthenticated, async function (req, res) {
+  
     var private = await db.Wallet.findAll({
       where: {
         owner: req.user.id,
@@ -106,19 +108,24 @@ module.exports = function (app) {
         public: true
       }
     })
-    var shared = await db.Wallet.findAll({
-      include: [{
-        model: db.User,
-        attributes: ['id'],
-        where: {
-          id: req.user.id,
-        }
-      }],
-      where: { [Op.not]: [{ owner: req.user.id }] }
 
-    });
+    var shared = await sequelize.query(
+      `SELECT Wallets.id, Wallets.title, Wallets.category, Wallets.public ,Wallets.createdAt, Wallets.updatedAt, Users.name as owner FROM Wallets JOIN Users ON Wallets.owner = Users.id JOIN wallet_user ON Wallets.id = wallet_user.walletId WHERE wallet_user.userId = ${req.user.id} AND NOT Wallets.owner = ${req.user.id}`,
+      {type: sequelize.QueryTypes.SELECT}
+    );
 
-    res.json({ private: private, public: public, shared: shared });
+    res.json({private: private, public: public, shared: shared });
+
+  });
+
+  app.get("/api/users/:id", isAuthenticated, async function (req, res){
+    var walletInfo = await sequelize.query(`SELECT Users.email FROM wallet_user JOIN Users ON wallet_user.userId = Users.id WHERE wallet_user.walletId = ${req.params.id}`,{type: sequelize.QueryTypes.SELECT});
+
+    if(walletInfo.find(e=>e.email == req.user.email)){
+      res.json(walletInfo);
+    }else{
+      res.status(401).send('unauthorized');
+    }
 
   });
 

@@ -1,67 +1,235 @@
 $(document).ready(() => {
 
-    getWallets();
+    var wallets = new Map();
 
-    // GET request to load member name and email
-    $.get("/api/user_data").then(data => {
-        $(".member-name").text(data.name);
-        $(".member-email").text(data.email);
+    //Get user wallets
+    $.get("/api/wallets/", function (data) {
+
+        if (data.private.length > 0) {
+            for (wallet of data.private) {
+                wallets.set(wallet.id, wallet);
+                var walletCard = createCard(wallet, true);
+                $("#privateWallets").append(walletCard);
+            }
+        } else {
+            $("#privateWallets").append("<p>You have no private wallets</p>")
+        }
+
+        if (data.public.length > 0) {
+            for (wallet of data.public) {
+                wallets.set(wallet.id, wallet);
+                var walletCard = createCard(wallet, true);
+                $("#publicWallets").append(walletCard);
+            }
+        } else {
+            $("#publicWallets").append("<p>You have no public wallets</p>")
+        }
+
+        if (data.shared.length > 0) {
+            for (wallet of data.shared) {
+                wallets.set(wallet.id, wallet);
+                var walletCard = createCard(wallet, false);
+                $("#sharedWallets").append(walletCard);
+            }
+        } else {
+            $("#sharedWallets").append("<p>No one has shared a wallet with you yet.</p>")
+        }
     });
-    
+
+    //Append card
+    function createCard(wallet, owned) {
+
+        var first = `<div class="col-md-6 col-lg-4">
+        <div class="card walletCard" data-id="${wallet.id}">
+            <div class="card-body">
+                <div class="row">
+                    <div class="cardHeader">
+                        <h6>${wallet.title}</h6>`
+
+        var button = `<button data-id="${wallet.id}" class='btn btn-primary pub-update updateWallet'>Edit</button>`;
+
+        var last = `</div>
+        <p>Owned by ${owned? 'you' : wallet.owner}</p>
+        <p>Created on ${wallet.createdAt.split("T")[0]}</p>
+        <p>Last updated on ${wallet.updatedAt.split("T")[0]}</p>
+        </div>
+        </div>
+        </div>
+        </div>`
+
+        if(owned){
+            var card = $(first+button+last);
+        }else{
+            var card = $(first+last);
+        }
+        return card;
+    }
+
+
+
+    //View Wallet
+    $(document).on('click', ".walletCard", function () {
+        location.href = `wallet.html?id=${$(this).data('id')}`
+    });
+
+    //Edit wallet
+    $(document).on('click', ".updateWallet", function (e) {
+
+        e.stopPropagation();
+        e.preventDefault();
+
+        var wallet = wallets.get($(this).data('id'));
+        $('#modalTitle').text('Edit Wallet');
+        $('#wallet-title').val(wallet.title);
+        var categories = wallet.category.split('|');
+        categories.forEach(e => {
+            $("#cat-list").append(`<li>${e}</li>`);
+        });
+        $('#publicPrivate').hide();
+
+        if(wallet.public){
+            $.get(`/api/users/${wallet.id}`, (data)=>{
+                if(data.length>0){
+                    for (email of data) {
+                        $("#user-list").append(`<li> ${email.email} </li>`);
+                    }         
+                }
+            });
+        }
+
+        
+
+        $('#modal').css('display', 'block');
+
+    });
+
+
+
+
+
+
+
+    $(document).on('click', '.expense', function (e) {
+        var id = $(this).data('id');
+
+        var expense = expenses.find(e => e.id == id);
+        $('#modelTitle').text('Expense Details');
+        $('#title').val(expense.title);
+        $('#amount').val(expense.amount);
+
+        for (cat of categories) {
+            $('#category').append(`<option value="${cat}">${cat}</option>`);
+        }
+        $('#category').append(`<option>Other</option>`);
+        $(`#category option[value=${expense.category}]`).attr('selected', 'selected');
+        $('#description').val(expense.description);
+        $('#date').val(expense.date);
+
+        for (let [id, user] of users) {
+            $('#paidBy').append(`<option data-id=${id} value="${user.name}">${user.name}</option>`);
+        }
+
+        $(`#paidBy option[value="${users.get(expense.paidBy).name}"]`).attr('selected', 'selected');
+
+        var shares = splits.get(id);
+        for (let [id, user] of users) {
+            var input = $('<input>');
+            input.val(shares.find(e => e.userId == id).share);
+            input.attr('data-id', id);
+            var shareLine = $('<tr>');
+            shareLine.addClass('shareLine');
+            var userName = $('<td>');
+            userName.text(user.name);
+            shareLine.append(userName).append(input);
+            $("#split table").append(shareLine).append();
+        }
+
+        $('#modal').css('display', 'block');
+
+        $("#submit-btn").click(e => {
+            e.preventDefault();
+            sendExpense(id);
+
+        });
+
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     //////Add new wallet modal//////
     var title = $("#wallet-title");
     userEmail();
 
-   $("#close").on("click", function () {
+    $("#close").on("click", function () {
         closeModal();
-      });
-    
-    $("#cat-btn").click(function(e){
+    });
+
+    $("#cat-btn").click(function (e) {
         e.preventDefault();
         catInput = $("input#wallet-cat").val().trim();
-        var catli =$("<li id='cat'>");
+        var catli = $("<li id='cat'>");
         catli.text(catInput);
         $("#cat-list").append(catli);
         $("input#wallet-cat").val("")
     })
-    
-    var emailArr =[];
-    function userEmail(){
-        $("#user-btn").click(function(e){
-        e.preventDefault();
-        emailInput = $("input#user-email").val();
-        emailArr.push(emailInput)
-    
-        var list = "";
-        for(var i=0; i < emailArr.length; i++){
-            list +="<li id='user'>"+emailArr[i]+"</li>";
-        }
+
+    var emailArr = [];
+    function userEmail() {
+        $("#user-btn").click(function (e) {
+            e.preventDefault();
+            emailInput = $("input#user-email").val();
+            emailArr.push(emailInput)
+
+            var list = "";
+            for (var i = 0; i < emailArr.length; i++) {
+                list += "<li id='user'>" + emailArr[i] + "</li>";
+            }
             $("#user-list").append(list);
             $("input#user-email").val("")
         })
     }
 
     $("#walletsub-btn").on("click", function (event) {
-    event.preventDefault();
-    alert("test")
-      createWallet();
-      closeModal();
-      location.reload();
+        event.preventDefault();
+        alert("test")
+        createWallet();
+        closeModal();
+        location.reload();
     })
 
     function createWallet() {
-    var wallet = {
-        title: title.val().trim(),
-        category: $("input#wallet-cat").val(),
-        public:  $('#exampleRadios1').is(':checked'),
-      }
+        var wallet = {
+            title: title.val().trim(),
+            category: $("input#wallet-cat").val(),
+            public: $('#exampleRadios1').is(':checked'),
+        }
 
-      console.log(wallet)
+        console.log(wallet)
 
-      $.post("/api/wallet", wallet, function() {
-          closeModal();
-      });
-  
+        $.post("/api/wallet", wallet, function () {
+            closeModal();
+        });
+
     }
 
     function closeModal() {
@@ -69,65 +237,13 @@ $(document).ready(() => {
         $("#cat").remove();
         $("#user").remove();
         emailArr = [];
+        $('#publicPrivate').show();
         $('#exampleModal').css('display', 'none');
     }
 
     //////Add new wallet end//////
 
-    //////Wallets//////
 
-    //Get user wallets
-    function getWallets() {
-        $.get("/api/wallets/", function(data) {
-        var public = data.public;
-        var private = data.private
-
-        for (var i = 0; i < public.length; i++) {
-            if (public[i].title == null){
-                return
-            } else {
-            var newDiv = $("<div id='card-body'>");
-            var viewBtn = $("<button class='btn btn-primary pub-view' id='view'>");
-            var updateBtn = $("<button class='btn btn-primary pub-update' id='update'>");
-            viewBtn.text("view")
-            updateBtn.text("update")
-            newDiv.append("<h6 class='d-flex align-items-center mb-3'><i class='material-icons text-info mr-2'>Wallet</i> - Public</h6>",
-                          "<h4>" + public[i].title +"</h4>",
-                          "<p>" + public[i].category +"</p>",
-                          updateBtn, viewBtn)
-                $("#card").append(newDiv)
-            }
-        }
-        
-        for (var i = 0; i < private.length; i++) {
-            if (private[i].title == null){
-                return
-            } else {
-            var newDiv = $("<div id='card-body'>");
-            var viewBtn = $("<button class='btn btn-primary pri-view' id='view'>");
-            var updateBtn = $("<button class='btn btn-primary pri-update' id='update'>");
-            viewBtn.text("view")
-            updateBtn.text("update")
-            newDiv.append("<h6 class='d-flex align-items-center mb-3'><i class='material-icons text-info mr-2'>Wallet</i> - Private</h6>",
-                          "<h4>" + private[i].title +"</h4>",
-                          "<p>" + private[i].category +"</p>",
-                          updateBtn, viewBtn);
-                $("#card").append(newDiv)
-                }
-            }
-        })
-         
-
-    }
-    //View Wallet
-    $(document).on('click', "#view", function() {
-        location.href ="wallet.html"
-    })
-
-    $(document).on('click', "#update", function() {
-        
-    })
-    
 
 
 })
@@ -138,23 +254,6 @@ $(document).ready(() => {
 
 
 
-    
-
-
-    
-    
-    
-        
-        
-
-        
-    
-        
-          
-         
-        
-  
-        
 
 
 
@@ -167,5 +266,22 @@ $(document).ready(() => {
 
 
 
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
