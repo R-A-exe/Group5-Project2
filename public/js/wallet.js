@@ -24,6 +24,7 @@ $(document).ready(function () {
       wallet.category.split("|").forEach(e=>{
         if(e!='') categories.set(e, {category: e ,total: 0.0});
       });
+      categories.set('Other', {category: 'Other' ,total: 0.0}
 
       if(walletInfo.expenses.length>0){
         walletInfo.expenses.forEach(e => {
@@ -111,9 +112,9 @@ $(document).ready(function () {
     $('#amount').val(expense.amount);
 
     for (cat of categories) {
-      $('#category').append(`<option value="${cat}">${cat}</option>`);
+      $('#category').append(`<option value="${cat.category}">${cat.category}</option>`);
     }
-    $('#category').append(`<option>Other</option>`);
+    $('#category').append(`<option value="Other>Other</option>`);
     $(`#category option[value=${expense.category}]`).attr('selected', 'selected');
     $('#description').val(expense.description);
     $('#date').val(expense.date);
@@ -152,9 +153,9 @@ $(document).ready(function () {
     e.preventDefault();
     $('#modelTitle').text('New Expense');
     for (cat of categories) {
-      $('#category').append(`<option value="${cat}">${cat}</option>`);
+      $('#category').append(`<option value="${cat.category}">${cat.category}</option>`);
     }
-    $('#category').append(`<option>Other</option>`);
+    $('#category').append(`<option value="Other">Other</option>`);
 
     for (let [id, user] of users) {
       $('#paidBy').append(`<option data-id=${id} value="${user.name}">${user.name}</option>`);
