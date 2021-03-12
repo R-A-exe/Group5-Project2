@@ -111,10 +111,10 @@ $(document).ready(function () {
     $('#title').val(expense.title);
     $('#amount').val(expense.amount);
 
-    for (cat of categories) {
-      $('#category').append(`<option value="${cat.category}">${cat.category}</option>`);
+    
+    for (let [key, value] of categories) {
+      $('#category').append(`<option value="${key}">${key}</option>`);
     }
-    $('#category').append(`<option value="Other>Other</option>`);
     $(`#category option[value=${expense.category}]`).attr('selected', 'selected');
     $('#description').val(expense.description);
     $('#date').val(expense.date);
@@ -152,10 +152,9 @@ $(document).ready(function () {
   $('#addExpense').click(e => {
     e.preventDefault();
     $('#modelTitle').text('New Expense');
-    for (cat of categories) {
-      $('#category').append(`<option value="${cat.category}">${cat.category}</option>`);
+    for (let [key, value] of categories) {
+      $('#category').append(`<option value="${key}">${key}</option>`);
     }
-    $('#category').append(`<option value="Other">Other</option>`);
 
     for (let [id, user] of users) {
       $('#paidBy').append(`<option data-id=${id} value="${user.name}">${user.name}</option>`);
