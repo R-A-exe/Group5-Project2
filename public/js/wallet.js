@@ -24,7 +24,7 @@ $(document).ready(function () {
       wallet.category.split("|").forEach(e=>{
         if(e!='') categories.set(e, {category: e ,total: 0.0});
       });
-      categories.set('Other', {category: 'Other' ,total: 0.0}
+      categories.set('Other', {category: 'Other' ,total: 0.0});
 
       if(walletInfo.expenses.length>0){
         walletInfo.expenses.forEach(e => {
