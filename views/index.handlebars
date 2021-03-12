@@ -1,146 +1,150 @@
-<main class="container">
-    <div class="main-body">
-        <div class="row gutters-sm">
-            <div class="col-md-4 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex flex-column align-items-center text-center">
-                            <img src="http://cdn.onlinewebfonts.com/svg/img_569204.png" alt="Admin"
-                                class="rounded-circle" width="250" height="250">
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-sm-3">
-                                <h6 class="mb-0">Name:</h6>
-                            </div>
-                            <div class="col-sm-9 text-secondary member-name">
-                                <span>{{name}}</span>
+<main>
+    <div class="container-fluid">
+        <div class="main-body">
+            <div class="row gutters-sm">
+                <div class="col-lg-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex flex-column align-items-center text-center">
+                                <img src="http://cdn.onlinewebfonts.com/svg/img_569204.png" alt="Admin"
+                                    class="rounded-circle" width="250" height="250">
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-sm-3">
-                                <h6 class="mb-0">Email:</h6>
-                            </div>
-                            <div class="col-sm-9 text-secondary member-email">
-                                <span>{{email}}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card mt-3">
-                    <button id="newWallet" type="button" class="btn btn-primary">Add Wallet</button>
-                    <!--Add Wallet Modal -->
-                    <div id="modal" class="modal">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="modalTitle"></h5>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Name:</h6>
                                 </div>
-                                <div class="modal-body">
-                                    <form id="newExpense">
-                                        <div class="form-group">
-                                            <label for="formGroupExampleInput">Title</label>
-                                            <input type="text" class="form-control" id="wallet-title">
-                                        </div>
-                                        <div class="form-group">
-                                            <div>
-                                                <label for="exampleFormControlSelect1">Category</label>
+                                <div class="col-sm-9 text-secondary member-name">
+                                    <span>{{name}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Email:</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary member-email">
+                                    <span>{{email}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mt-3">
+                        <button id="newWallet" type="button" class="btn btn-outline-dark">Add Wallet</button>
+                        <!--Add Wallet Modal -->
+                        <div id="modal" class="modal">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modalTitle"></h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="newExpense">
+                                            <div class="form-group">
+                                                <label for="formGroupExampleInput">Title</label>
+                                                <input type="text" class="form-control" id="wallet-title">
                                             </div>
-                                            <div class="input-group">
-                                                <input type="text" id="wallet-cat" class="form-control">
-                                                <span class="input-group-btn">
-                                                    <button class="btn btn-primary" id="cat-btn"
-                                                        type="button">Add</button>
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <ul id="cat-list"></ul>
-                                            </div>
-                                            <div class="form-group" id="publicPrivate">
+                                            <div class="form-group">
                                                 <div>
-                                                    <label for="formGroupExampleInput">Wallet Type</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="exampleRadios"
-                                                        id="publicBtn" value="true">
-                                                    <label class="form-check-label" for="exampleRadios1">Public</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="exampleRadios"
-                                                        id="privateBtn" value="false">
-                                                    <label class="form-check-label active"
-                                                        for="exampleRadios2">Private</label>
-                                                </div>
-                                            </div>
-                                            <div id="usersDiv">
-                                                <div>
-                                                    <label for="exampleFormControlSelect1">Users</label>
+                                                    <label for="exampleFormControlSelect1">Category</label>
                                                 </div>
                                                 <div class="input-group">
-                                                    <input type="text" id="user-email" class="form-control">
+                                                    <input type="text" id="wallet-cat" class="form-control">
                                                     <span class="input-group-btn">
-                                                        <button class="btn btn-primary" id="user-btn"
+                                                        <button class="btn btn-primary" id="cat-btn"
                                                             type="button">Add</button>
                                                     </span>
                                                 </div>
                                                 <div>
-                                                    <ul id="user-list"></ul>
+                                                    <ul id="cat-list"></ul>
                                                 </div>
-                                            </div>
-                                    </form>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" id="close" class="btn btn-secondary"
-                                        data-dismiss="modal">Close</button>
-                                    <button type="button" id="walletsub-btn" class="btn btn-primary">Submit</button>
+                                                <div class="form-group" id="publicPrivate">
+                                                    <div>
+                                                        <label for="formGroupExampleInput">Wallet Type</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio"
+                                                            name="exampleRadios" id="publicBtn" value="true">
+                                                        <label class="form-check-label"
+                                                            for="exampleRadios1">Public</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio"
+                                                            name="exampleRadios" id="privateBtn" value="false">
+                                                        <label class="form-check-label active"
+                                                            for="exampleRadios2">Private</label>
+                                                    </div>
+                                                </div>
+                                                <div id="usersDiv">
+                                                    <div>
+                                                        <label for="exampleFormControlSelect1">Users</label>
+                                                    </div>
+                                                    <div class="input-group">
+                                                        <input type="text" id="user-email" class="form-control">
+                                                        <span class="input-group-btn">
+                                                            <button class="btn btn-primary" id="user-btn"
+                                                                type="button">Add</button>
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <ul id="user-list"></ul>
+                                                    </div>
+                                                </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" id="close" class="btn btn-secondary"
+                                            data-dismiss="modal">Close</button>
+                                        <button type="button" id="walletsub-btn" class="btn btn-primary">Submit</button>
+                                    </div>
                                 </div>
                             </div>
+                            <!--Modal End-->
                         </div>
-                        <!--Modal End-->
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="row">
+                    <h2>
+                        Your private wallets
+                    </h2>
+                    <hr>
+                    <div class="container">
+                        <div id="privateWallets" class="row">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <h2>
+                        Your public wallets
+                    </h2>
+                    <hr>
+                    <div class="container">
+                        <div id="publicWallets" class="row">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <h2>
+                        Shared with you
+                    </h2>
+                    <hr>
+                    <div class="container">
+                        <div id="sharedWallets" class="row">
+
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-8">
-            <div class="row">
-                <h2>
-                    Your private wallets
-                </h2>
-                <hr>
-                <div class="container">
-                    <div id="privateWallets" class="row">
-
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <h2>
-                    Your public wallets
-                </h2>
-                <hr>
-                <div class="container">
-                    <div id="publicWallets" class="row">
-
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <h2>
-                    Shared with you
-                </h2>
-                <hr>
-                <div class="container">
-                    <div id="sharedWallets" class="row">
-
-                    </div>
-                </div>
-            </div>
-        </div>
+    </div>
 </main>

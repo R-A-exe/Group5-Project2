@@ -92,7 +92,7 @@ $(document).ready(function () {
 
       var tableLine = `<tr class="expense" data-id=${expense.id}>
          <td>${expense.title}</td>
-         <td>${expense.category}</td>
+         <td class="hide">${expense.category}</td>
          <td>${expense.date}</td>
          <td>$${parseFloat((expense.amount)).toFixed(2)}</td>
          <td>${users.get(expense.paidBy).name}</td>
@@ -141,6 +141,12 @@ $(document).ready(function () {
 
     $('#modal').css('display', 'block');
 
+    $("#submit-btn").click(e => {
+      e.preventDefault();
+      sendExpense(id);
+
+    });
+
   });
 
 
@@ -169,17 +175,14 @@ $(document).ready(function () {
 
     $('#modal').css('display', 'block');
 
-  });
-
-
-  $("#submit-btn").click(e => {
-    e.preventDefault();
-    if( $('#modelTitle').text()==='New Expense'){
+    $("#submit-btn").click(e => {
+      e.preventDefault();
       sendExpense(null);
-    }else{
-      sendExpense(id);
-    }
+
+    });
+
   });
+
 
   function validateData() {
 
@@ -194,11 +197,6 @@ $(document).ready(function () {
 
     if ($('#amount').val().trim() == '' || parseFloat($('#amount').val()) < 0.01) {
       $('#amount').after('<p class="red" id="amountError">Please enter a valid amount</p>');
-      valid = false;
-    }
-
-    if ($('#description').val().trim() == '') {
-      $('#description').after('<p class="red" id="descriptionError">Please enter a description</p>');
       valid = false;
     }
 
@@ -271,6 +269,7 @@ $(document).ready(function () {
   }
 
   function closeModal() {
+    $("#submit-btn").off('click');
     $('#modelTitle').text('');
     $('#title').val('');
     $('#amount').val('');
@@ -300,7 +299,7 @@ $(document).ready(function () {
         var data = google.visualization.arrayToDataTable(arrOfArrs);
         var chartWidth = document.getElementById('costChart').offsetWidth;
         var options = {
-            width: chartWidth, height: (chartWidth - 50), legend: { position: 'bottom', alignment: 'center' }, pieSliceText: 'value', chartArea: { width: "80%" }
+            width: (chartWidth-150), height: (chartWidth - 150), legend: { position: 'bottom', alignment: 'center' }, pieSliceText: 'value', chartArea: { width: "80%" }
         };
         var chart = new google.visualization.PieChart(document.getElementById("costChart"));
         chart.draw(data, options);

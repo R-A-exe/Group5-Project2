@@ -39,14 +39,14 @@ $(document).ready(() => {
     //Load wallets
     function createCard(wallet, owned) {
 
-        var first = `<div class="col-md-6 col-lg-4">
+        var first = `<div class="col-lg-6 col-xl-4">
         <div class="card walletCard" data-id="${wallet.id}">
             <div class="card-body">
                 <div class="row">
                     <div class="cardHeader">
                         <h6>${wallet.title}</h6>`
 
-        var button = `<button data-id="${wallet.id}" class='btn btn-primary pub-update updateWallet'>Edit</button>`;
+        var button = `<button data-id="${wallet.id}" class='btn btn-outline-dark pub-update updateWallet'>Edit</button>`;
 
         var last = `</div>
         <p>Owned by ${owned ? 'you' : wallet.owner}</p>
@@ -213,7 +213,7 @@ $(document).ready(() => {
 
     //Handle close click
     function closeModal() {
-
+        $('#walletsub-btn').off('click');
         $("#wallet-title").val('');
         $("#wallet-cat").val('');
         $("#user-email").val('');
