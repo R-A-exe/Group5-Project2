@@ -105,6 +105,7 @@ $(document).ready(function () {
 
   $(document).on('click', '.expense', function (e) {
     var id = $(this).data('id');
+    console.log(id);
 
     var expense = expenses.find(e => e.id == id);
     $('#modelTitle').text('Expense Details');
@@ -115,7 +116,7 @@ $(document).ready(function () {
     for (let [key, value] of categories) {
       $('#category').append(`<option value="${key}">${key}</option>`);
     }
-    $(`#category option[value=${expense.category}]`).attr('selected', 'selected');
+    $(`#category option[value="${expense.category}"]`).attr('selected', 'selected');
     $('#description').val(expense.description);
     $('#date').val(expense.date);
 
@@ -139,12 +140,6 @@ $(document).ready(function () {
     }
 
     $('#modal').css('display', 'block');
-
-    $("#submit-btn").click(e => {
-      e.preventDefault();
-      sendExpense(id);
-
-    });
 
   });
 
@@ -174,14 +169,17 @@ $(document).ready(function () {
 
     $('#modal').css('display', 'block');
 
-    $("#submit-btn").click(e => {
-      e.preventDefault();
-      sendExpense(null);
-
-    });
-
   });
 
+
+  $("#submit-btn").click(e => {
+    e.preventDefault();
+    if( $('#modelTitle').text()==='New Expense'){
+      sendExpense(null);
+    }else{
+      sendExpense(id);
+    }
+  });
 
   function validateData() {
 
@@ -251,7 +249,7 @@ $(document).ready(function () {
         type: type,
         data: {
           title: $('#title').val().trim(),
-          amount: $('#amount').val().trim(),
+          amount: parseFloat($('#amount').val().trim()),
           description: $('#description').val().trim(),
           category: $('#category').find(":selected").text(),
           date: $('#date').val(),
