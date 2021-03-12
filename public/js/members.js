@@ -184,7 +184,6 @@ $(document).ready(() => {
                         public: !$("#privateBtn").prop("checked"),
                         emails: newUser
                     }
-                    console.log(newCat);
                 }
 
                 $.ajax({
@@ -197,7 +196,6 @@ $(document).ready(() => {
                         location.reload();
                     },
                     error: function (err) {
-                        console.log(err);
                         alert('Could not make changes!')
                     }
                 });
