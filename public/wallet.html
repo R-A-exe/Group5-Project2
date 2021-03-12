@@ -9,6 +9,9 @@
     integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
   <link href="stylesheets/style.css" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
 
 <body>
@@ -82,32 +85,42 @@
       </div>
     </nav>
   </header>
-  <main class="container-fluid">
-    <div class="row">
-      <div id="walletInfo" class="col-11">
-        <h2>Shares</h2>
-        <table>
-          <th>User</th>
-          <th>Has paid</th>
-          <th>Owed</th>
-          <th>Total</th>
-        </table>
-      </div>
-      <div>
-        <button  class="btn btn-primary" id="addExpense">Add expense</button>
-      </div>
+  <main>
+    <div id="walletBox">
+      <h1></h1>
+      <button class="btn btn-primary" id="addExpense">Add expense</button>
     </div>
-    <div class="row">
-      <div class="col">
-        <div id="expenses">
-          <h2>Expenses</h2>
+    <div class="container-fluid">
+      <div class="row">
+        <div id="walletInfo" class="col-lg-4">
+          <h2>Shares</h2>
           <table>
-            <th>Title</th>
-            <th>Category</th>
-            <th>Date</th>
-            <th>Amount</th>
-            <th>Paid by</th>
+            <th>User</th>
+            <th>Has paid</th>
+            <th>Owed</th>
+            <th>Total</th>
           </table>
+        </div>
+        <div id="total" class="col-lg-4">
+          <h2>Total</h2>
+          <hr>
+          <p></p>
+        </div>
+        <div id="costChart" class="col-lg-4">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div id="expenses">
+            <h2>Expenses</h2>
+            <table>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Paid by</th>
+            </table>
+          </div>
         </div>
       </div>
     </div>

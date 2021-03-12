@@ -7,29 +7,43 @@ $(document).ready(function () {
   var users = new Map();
   var splits = new Map();
   var expenses = new Array();
-  var categories = null;
+  var categories = new Map();
+  var totalExpenses = null
 
   $.get(`api/wallets/${id}`, (walletInfo, status) => {
     if (status != 'success') {
       alert("Something went wrong");
     } else {
       wallet = walletInfo.wallet;
-      walletInfo.wallet.Users.forEach(e => {
-        users.set(e.id, { id: e.id, email: e.email, name: e.name, paid: 0.0, owes: 0.0 });
-      });
-      walletInfo.expenses.forEach(e => {
-        users.get(e.paidBy).paid += parseFloat(e.amount);
-        expenses.push(e);
-      });
-      walletInfo.shares.forEach(e => {
-
-        splits.set(e.id, e.Splits);
-        console.log(splits);
-        e.Splits.forEach(s => {
-          users.get(s.userId).owes += parseFloat(e.amount) * parseFloat(s.share);
+      if(walletInfo.wallet.Users.length>0){
+        walletInfo.wallet.Users.forEach(e => {
+          users.set(e.id, { id: e.id, email: e.email, name: e.name, paid: 0.0, owes: 0.0 });
         });
+      }
+
+      wallet.category.split("|").forEach(e=>{
+        if(e!='') categories.set(e, {category: e ,total: 0.0});
       });
-      categories = wallet.category.split("|");
+
+      if(walletInfo.expenses.length>0){
+        walletInfo.expenses.forEach(e => {
+          users.get(e.paidBy).paid += parseFloat(e.amount);
+          totalExpenses += parseFloat(e.amount);
+          var cat = categories.get(e.category);
+         cat.total += parseFloat(e.amount);
+          expenses.push(e);
+        });
+      }
+
+
+      if(walletInfo.shares.length>0){
+        walletInfo.shares.forEach(e => {
+          splits.set(e.id, e.Splits);
+          e.Splits.forEach(s => {
+            users.get(s.userId).owes += parseFloat(e.amount) * parseFloat(s.share);
+          });
+        });
+      }
     }
   }).then(() => {
     loadExpenses();
@@ -38,7 +52,7 @@ $(document).ready(function () {
 
   function loadWalletInfo() {
 
-    $("#walletInfo").prepend(`<h1>${wallet.title}</h1>`);
+    $("#walletBox h1").text(wallet.title);
 
     if (wallet.public) {
       for (let user of users.values()) {
@@ -56,6 +70,19 @@ $(document).ready(function () {
     </tr>`;
         $("#walletInfo table").append(tableLine);
       }
+
+      if(totalExpenses){
+        $('#total p').text(`$${parseFloat(totalExpenses).toFixed(2)}`)
+      }else{
+        $('#total p').text(`$0.00`)
+      }
+    }
+
+    if(expenses.length==0){
+      $('#costChart').append('<h2>Breakdown by categories</h2>');
+      $('#costChart').append('<p>You have no expenses</p>');
+    }else{
+      drawChart();
     }
   }
 
@@ -66,7 +93,7 @@ $(document).ready(function () {
          <td>${expense.title}</td>
          <td>${expense.category}</td>
          <td>${expense.date}</td>
-         <td>${expense.amount}</td>
+         <td>$${parseFloat((expense.amount)).toFixed(2)}</td>
          <td>${users.get(expense.paidBy).name}</td>
        </tr>`;
 
@@ -262,6 +289,32 @@ $(document).ready(function () {
     e.preventDefault();
     closeModal();
   });
+
+
+  function drawChart() {                                                  //Google Chart
+    google.charts.load('current', { 'packages': ['corechart'] });
+    google.charts.setOnLoadCallback(loadChart);
+    function loadChart() {
+        var arrOfArrs = [['Expenses', 'CAD']];
+        categories.forEach((el) => {
+            arrOfArrs.push([el.category, el.total]);
+        });
+        var data = google.visualization.arrayToDataTable(arrOfArrs);
+        var chartWidth = document.getElementById('costChart').offsetWidth;
+        var options = {
+            width: chartWidth, height: (chartWidth - 50), legend: { position: 'bottom', alignment: 'center' }, pieSliceText: 'value', chartArea: { width: "80%" }
+        };
+        var chart = new google.visualization.PieChart(document.getElementById("costChart"));
+        chart.draw(data, options);
+        $('#costChart').prepend('<h2>Breakdown by categories</h2>');
+    }
+}
+
+$(window).on('resize', function () {        //resize google chart with window
+    $("#costChart").empty();
+    drawChart();
+});
+
 
 
 

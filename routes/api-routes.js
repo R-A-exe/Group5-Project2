@@ -132,19 +132,9 @@ module.exports = function (app) {
 
   // Get route for retrieving a single wallet
   app.get("/api/wallets/:id", isAuthenticated, async function (req, res) {
-
-    var validate = await db.Wallet.findOne({
-      include: [{
-        model: db.User,
-        attributes: ['id'],
-        where: {
-          id: req.user.id,
-        }
-      }],
-      where: {
-        id: req.params.id
-      }
-    }
+    
+    var validate = await sequelize.query(
+      `SELECT WalletId FROM wallet_user WHERE UserId=${req.user.id} AND WalletId=${req.params.id}`
     );
 
     if (validate) {
