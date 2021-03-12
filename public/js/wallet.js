@@ -8,7 +8,8 @@ $(document).ready(function () {
   var splits = new Map();
   var expenses = new Array();
   var categories = new Map();
-  var totalExpenses = null
+  var totalExpenses = null;
+  var settleExpense = new Map();
 
   $.get(`api/wallets/${id}`, (walletInfo, status) => {
     if (status != 'success') {
@@ -17,7 +18,7 @@ $(document).ready(function () {
       wallet = walletInfo.wallet;
       if(walletInfo.wallet.Users.length>0){
         walletInfo.wallet.Users.forEach(e => {
-          users.set(e.id, { id: e.id, email: e.email, name: e.name, paid: 0.0, owes: 0.0 });
+          users.set(e.id, { id: e.id, email: e.email, name: e.name, paid: 0.0, owes: 0.0, settled: 0.0 });
         });
       }
 
@@ -25,13 +26,19 @@ $(document).ready(function () {
         if(e!='') categories.set(e, {category: e ,total: 0.0});
       });
       categories.set('Other', {category: 'Other' ,total: 0.0});
+      categories.set('Settling Balance', {category: 'Settling Balance'});
 
       if(walletInfo.expenses.length>0){
         walletInfo.expenses.forEach(e => {
-          users.get(e.paidBy).paid += parseFloat(e.amount);
-          totalExpenses += parseFloat(e.amount);
-          var cat = categories.get(e.category);
-         cat.total += parseFloat(e.amount);
+          if(e.category!='Settling Balance'){
+            users.get(e.paidBy).paid += parseFloat(e.amount);
+            totalExpenses += parseFloat(e.amount);
+            var cat = categories.get(e.category);
+           cat.total += parseFloat(e.amount);
+          }else{
+            users.get(e.paidBy).settled += parseFloat(e.amount);
+            settleExpense.set(e.id, e.amount);
+          }
           expenses.push(e);
         });
       }
@@ -40,12 +47,24 @@ $(document).ready(function () {
       if(walletInfo.shares.length>0){
         walletInfo.shares.forEach(e => {
           splits.set(e.id, e.Splits);
-          e.Splits.forEach(s => {
-            users.get(s.userId).owes += parseFloat(e.amount) * parseFloat(s.share);
-          });
+          if(!settleExpense.get(e.id)){
+            e.Splits.forEach(s => {
+              users.get(s.userId).owes += (parseFloat(e.amount) * parseFloat(s.share));
+            });
+          }
         });
       }
+
+      if(settleExpense.size>0){
+        for(let [key, value ] of settleExpense){
+          splits.get(key).forEach(s=>{
+            users.get(s.userId).settled += (-parseFloat(value) * parseFloat(s.share));
+          });
+        };
+      }
+
     }
+
   }).then(() => {
     loadExpenses();
     loadWalletInfo();
@@ -59,14 +78,15 @@ $(document).ready(function () {
       for (let user of users.values()) {
         var total;
         if (user.paid - user.owes > 0) {
-          total = `<span>Is owed ${parseFloat(user.paid - user.owes).toFixed(2)}</span>`;
+          total = `<span>Is owed ${parseFloat(user.paid - user.owes + user.settled).toFixed(2)}</span>`;
         } else {
-          total = `<span>Owes ${parseFloat(-(user.paid - user.owes)).toFixed(2)}</span>`;
+          total = `<span>Owes ${parseFloat(-(user.paid - user.owes + user.settled)).toFixed(2)}</span>`;
         }
         var tableLine = `<tr class="userInfo">
       <td>${user.name}</td>
       <td>${parseFloat(user.paid).toFixed(2)}</td>
       <td>${parseFloat(user.owes).toFixed(2)}</td>
+      <td>${parseFloat(user.settled).toFixed(2)}</td>
       <td>${total}</td>
     </tr>`;
         $("#walletInfo table").append(tableLine);
@@ -92,7 +112,7 @@ $(document).ready(function () {
 
       var tableLine = `<tr class="expense" data-id=${expense.id}>
          <td>${expense.title}</td>
-         <td>${expense.category}</td>
+         <td class="hide">${expense.category}</td>
          <td>${expense.date}</td>
          <td>$${parseFloat((expense.amount)).toFixed(2)}</td>
          <td>${users.get(expense.paidBy).name}</td>
@@ -141,6 +161,12 @@ $(document).ready(function () {
 
     $('#modal').css('display', 'block');
 
+    $("#submit-btn").click(e => {
+      e.preventDefault();
+      sendExpense(id);
+
+    });
+
   });
 
 
@@ -169,17 +195,14 @@ $(document).ready(function () {
 
     $('#modal').css('display', 'block');
 
-  });
-
-
-  $("#submit-btn").click(e => {
-    e.preventDefault();
-    if( $('#modelTitle').text()==='New Expense'){
+    $("#submit-btn").click(e => {
+      e.preventDefault();
       sendExpense(null);
-    }else{
-      sendExpense(id);
-    }
+
+    });
+
   });
+
 
   function validateData() {
 
@@ -194,11 +217,6 @@ $(document).ready(function () {
 
     if ($('#amount').val().trim() == '' || parseFloat($('#amount').val()) < 0.01) {
       $('#amount').after('<p class="red" id="amountError">Please enter a valid amount</p>');
-      valid = false;
-    }
-
-    if ($('#description').val().trim() == '') {
-      $('#description').after('<p class="red" id="descriptionError">Please enter a description</p>');
       valid = false;
     }
 
@@ -271,6 +289,7 @@ $(document).ready(function () {
   }
 
   function closeModal() {
+    $("#submit-btn").off('click');
     $('#modelTitle').text('');
     $('#title').val('');
     $('#amount').val('');
@@ -295,12 +314,12 @@ $(document).ready(function () {
     function loadChart() {
         var arrOfArrs = [['Expenses', 'CAD']];
         categories.forEach((el) => {
-            arrOfArrs.push([el.category, el.total]);
+           if(el.category!='Settling Balance') arrOfArrs.push([el.category, el.total]);
         });
         var data = google.visualization.arrayToDataTable(arrOfArrs);
         var chartWidth = document.getElementById('costChart').offsetWidth;
         var options = {
-            width: chartWidth, height: (chartWidth - 50), legend: { position: 'bottom', alignment: 'center' }, pieSliceText: 'value', chartArea: { width: "80%" }
+            width: (chartWidth-150), height: (chartWidth - 150), legend: { position: 'bottom', alignment: 'center' }, pieSliceText: 'value', chartArea: { width: "80%" }
         };
         var chart = new google.visualization.PieChart(document.getElementById("costChart"));
         chart.draw(data, options);

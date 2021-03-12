@@ -5,7 +5,7 @@ module.exports = function(sequelize, DataTypes){
     var Expense = sequelize.define('Expense',
     {
         amount: {
-            type: DataTypes.DECIMAL,
+            type: DataTypes.FLOAT,
             allowNull: false
         },
         title:{

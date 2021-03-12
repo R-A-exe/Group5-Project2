@@ -277,7 +277,7 @@ module.exports = function (app) {
         // Then, we do some calls passing this transaction as an option:
         const expense = await db.Expense.create({
           title: req.body.title,
-          amount: req.body.amount,
+          amount: parseFloat(req.body.amount),
           description: req.body.description,
           category: req.body.category,
           date: req.body.date,
@@ -331,7 +331,7 @@ module.exports = function (app) {
       try {
         await db.Expense.update({
           title: req.body.title,
-          amount: req.body.amount,
+          amount: parseFloat(req.body.amount),
           description: req.body.description,
           category: req.body.category,
           date: req.body.date,

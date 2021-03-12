@@ -11,29 +11,71 @@ form.login {
   color: red
 }
 
-main{
-  padding: 30px;
+*{
+  font-family: 'Rajdhani', sans-serif;
 }
+
+h1{
+  font-weight: 600;
+}
+
+h2, th, h4{
+  font-weight: 500;
+}
+
+
+.navbar-brand{
+  font-size: 24pt !important;
+  padding-left: 10px;
+}
+
 
 .col-1, .col-11, .col{
   padding: 0px;
 }
+
 #walletBox{
+  position: fixed;
+  top: 8%;
+  margin: 10px 5%;
+  padding: 10px;
+  width: 90%;
   display: flex;
   flex-flow: row;
   justify-content: space-between;
-  margin: auto;
-}
+  background-color: white;
+  z-index: 1;
+  border-bottom: solid 1px rgb(70, 69, 69) ;
+} 
 
 #walletBox button{
   align-self: center;
   height: 50%;
 }
 
+#walletBox h1{
+  align-self: center;
+}
+
+#buffer{
+  height: 100px;
+}
+
+main{
+  padding: 5%;
+}
+
+table{
+  width: 100%;
+}
+table td{
+  width: 20%;
+}
+
 #walletInfo{
   text-align: center;
-  padding: 30px;
   margin: 20px 0px;
+  padding-top: 30px
 }
 
 #walletInfo table{
@@ -42,14 +84,15 @@ main{
 
 #walletInfo td{
   font-size: small;
+  width: 20%;
 }
 
 #total{
   text-align: center;
   padding: 30px;
   margin: 20px 0px;
-  border-right: solid 1px rgb(255, 51, 0);
-  border-left: solid 1px rgb(255, 51, 0);
+  border-right: solid 1px rgb(112, 112, 112);
+  border-left: solid 1px  rgb(112, 112, 112);
 }
 
 #total p{
@@ -62,25 +105,49 @@ main{
   margin: 20px 0px;
 }
 
-#expenses{
+#costChart div div{
   margin: auto;
 }
 
-table{
+#expenses{
+  margin: auto;
+  text-align: center;
+}
+
+#expensesHeader{
   width: 100%;
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+}
+
+#expensesHeader h4{
+  width: 20%;
+}
+
+#tableScroll{
+  height: 500px;
+  overflow: scroll;
+  border: solid 1px rgb(112, 112, 112);;
+}
+
+#tableScroll tr{
+  height: 50px;
+  background-color: rgb(194, 191, 191);
+  border: solid 5px white ;
 }
 
 .modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
+  display: none;
+  position: fixed; 
+  z-index: 1 im !important;
   left: 0;
   top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  width: 100%; 
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0); 
+  background-color: rgba(0,0,0,0.4);
 }
 
 .red{
@@ -100,6 +167,7 @@ ul{
 
 .walletCard{
   cursor: pointer;
+  margin: 10px;
 }
 
 .walletCard button {
@@ -108,11 +176,38 @@ ul{
 
 
 
+@media (max-width: 550px) {
+
+  #walletBox{
+    display: block;
+    text-align: center;
+  }
+
+  #buffer{
+    height: 150px;
+  }
+
+}
+
+
 
 @media (max-width: 700px) {
   td{
     font-size: small;
   }
+
+  .hide{
+    display: none;
+  }
+
+  table td{
+    width: 25%;
+  }
+
+  #expensesHeader span{
+    width: 25%;
+  }
+  
 }
 
 
@@ -120,8 +215,8 @@ ul{
  #total{
     border-right: none;
     border-left: none;
-    border-bottom: solid 1px  rgb(255, 51, 0);
-    border-top: solid 1px  rgb(255, 51, 0);
+    border-bottom: solid 1px  rgb(112, 112, 112);
+    border-top: solid 1px  rgb(112, 112, 112);
   }
 }
 
