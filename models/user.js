@@ -45,9 +45,9 @@ module.exports = function (sequelize, DataTypes) {
       foreignKey: 'userId'
     });
     User.hasMany(models.Wallet, {
-      foreignKey: 'owner'
+      foreignKey: 'owner',
     });
-    User.belongsToMany(models.Wallet, { through: 'wallet_user' });
+    User.belongsToMany(models.Wallet, { through: 'wallet_user'});
   }
   return User;
 };
