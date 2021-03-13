@@ -276,7 +276,6 @@ $(document).ready(function () {
           map: map
         },
         success: function (resp) {
-          alert('Done!');
           closeModal();
           location.reload();
         },
