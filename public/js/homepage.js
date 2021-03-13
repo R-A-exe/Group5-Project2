@@ -1,7 +1,7 @@
 $(document).ready(function () {
 
     $(".sign-up").on('click', function () {
-        window.location.load("signup.html")
+        location.href="/signup.html"
 
     })
 
