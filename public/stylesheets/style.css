@@ -38,12 +38,6 @@ h2, th, h4{
 
 .navbar {
   background-color:#f4511e ;
-  /* color : white; */
-}
-
-.navbar-toggler-icon {
-  /* background-color: white; */
-   /* color: white; */
 }
 
 .navbar a{
@@ -200,7 +194,7 @@ ul{
   width: 30%;
 }
 
-
+/*Media Queries*/
 @media (max-width: 550px) {
 
   #walletBox{

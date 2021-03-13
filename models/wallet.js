@@ -1,5 +1,4 @@
 //wallets: id, title, categories(array), user_id as owner, public (boolean)
-
 module.exports = function (sequelize, DataTypes) {
     const Wallet = sequelize.define("Wallet", {
         title: {
