@@ -1,4 +1,7 @@
-<h1 align="center"> SplitIsh</h1>
+<p align="center"> 
+<img src="public/img/splitish1.png" alt= "splitish logo" width= "500px">
+</p>
+
 <p align="center">
  <a href=""><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" target="_blank" /></a>
  <a href=""><img alt="Nodejs" src="https://aleen42.github.io/badges/src/node.svg" target="_blank" /></a>
@@ -19,6 +22,9 @@
 * [License](#license)
 
 ## Description
+
+You are enjoying a pleasant evening of food, drinks, and great conversation with a group of friends. Everything is going smoothly until your server presents a bill, and you realize you forgot to ask for separate bills.
+
 SplitIsh is a cost sharing app that helps its users to monitor their finances by allowing them to split bills with friends, family, roommates etc. A new wallet can be created, an expense added and the group can decide how to split the bill.  The app also allows its users to track their expenses, spending and budgeting. 
 
 ### User Story:
@@ -60,22 +66,54 @@ Then I am able to edit the name of the wallet, add categories and invite/remove 
 * [Nodemailer](https://thisdavej.com/node-js-sending-email-notifications-using-nodemailer-and-gmail/) (email invites/notification)
 
 ## Usage
-A first time user needs to sign up to access the app. Once the sign up or log in process is complete, the user is re-directed to the user profile page. This page displays the user's name, email and wallets (if a wallet was already created). The user is able to add a wallet by providing a wallet name, category, select the wallet status(publis or private) and add users to the wallet. Email notificateions will be sent to the users added. Once a wallet is created the user is able to view the wallet or update the wallet information. Once the user views the wallet, they are able to see a list of expenses that were added previously. Expenses can also be added or edited. 
+A first time user needs to sign up to access the app. Once the sign up is complete, the user is re-directed to the user profile page. This page displays the user's name, email and area to display wallets. If the user has already signed up, they are able to log in and access the user profile page.
+
+The wallets are displayed in three categories:
+1. Private wallets - This a wallet that was created and no users were added. Only the logged in user can access the information.
+
+2. Public wallets- This is a wallet that the logged in user created and add users to. Users are added by entering an email address for people you want to add to the wallet.
+
+3. Shared wallets- This is a wallet created by another user and you were invited. This wallet type cannot be edited.
+
+The logged in user is able to add a wallet by providing a wallet name, categories, select the wallet status(public or private) and add users (enter email address for person/ persons you want to add) to the wallet. Email invitations will be sent to the users to sign up. 
+
+Once a wallet is created the user is able to edit or view the wallet. To edit a wallet, click on the edit button on the the wallet. If the wallet is private, only the category can be edited. If the wallet is a public wallet, the user is able add more categories and invite more users. Please note that the user is not able to delete any of the information when making edits.
+
+To view a wallet, the user clicks on the wallet card. A private wallet will only display the logged in users name. If the wallet is pblic or shared all the users (once they have have an account), will be displayed in the shares section. The users are able to add expenses. When the expense infomation is filled in and submitted, the expense is shown in the expense section, by title, category, date and paid by. The total section and breakdown by categories areas are also populated. The users are able to edit expenses that they enter by clicking on the expense.
+
+The users are able to settle up if they own money. A new expense is created, the user fills out the relevant information and the category settling balance is selected. In the split shares section, ensure that the user user value for the person you need to pay is one(1) and the other user value is zero(0)(This step is not neccessary in a private wallet). Please note at the time their might be some discrepancies in the amount owed as the share is split by percentage. For example, if the shares on an expense were split 0.33. This something we hope to fix in the future.
+
 
 ### Deployment and Demo
 Heroku was used for app deployment.
 
+Click [here](https://project2nashfaroukroy.herokuapp.com/) to deploy.
+
 ### Screenshots
-### The user interface is responsive and adapts to all screen sizes. Click on the arrows to drop down more images at various screen sizes.
+<p align= "center">
+<img src="public/img/homepage.png" alt= "app homepage" width= "500px">
+</p>
+
+### Click on the arrows to drop down more images of the app.
 
 <details>
-  <summary>Image of app</summary>
+  <summary>Profile Page with and without wallets</summary>
+  <img src="public/img/profile-page-nowallets.png" alt= "new profile page">
+  <img src="public/img/profile-page-wallets.png" alt= "profile page with wallets">
 </details>
 <details>
-  <summary>Image of app</summary>
+  <summary>Adding and editing wallets</summary>
+  <img src="public/img/personal-wallet.gif" alt= "add wallet gif">
+  <img src="public/img/public-wallet.gif" alt= "add wallet gif">
+  <img src="public/img/edit-wallet.png" alt= "edit wallet modal">
 </details>
 <details>
-  <summary>image of app</summary>
+  <summary>Adding and editing expenses</summary>
+  <img src="public/img/add-edit-expense.gif" alt= "add and edit gif">
+</details>
+<details>
+  <summary>Settling expenses</summary>
+  <img src="public/img/settle-bill.gif" alt= "settle bill gif">
 </details>
 
 ### Tips
@@ -109,4 +147,5 @@ Steps to contribute:
 
 
 ## License 
+Copyright © 2021
 
