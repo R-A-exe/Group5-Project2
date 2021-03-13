@@ -166,7 +166,7 @@ module.exports = function (app) {
         }
       })
 
-      var response = { wallet: walletInfo, expenses: expenses, shares: shares, invited: invited };
+      var response = { wallet: walletInfo, expenses: expenses, shares: shares, invited: invited, me: req.user.id };
       res.status(200);
       res.json(response);
     } else {
@@ -345,7 +345,7 @@ module.exports = function (app) {
           });
         var map = req.body.map;
         for (var i = 0; i < map.length; i++) {
-          await db.Split.update({
+          var splitUpdate = await db.Split.update({
             share: map[i].share
           },
             {
@@ -354,7 +354,15 @@ module.exports = function (app) {
                 userId: map[i].userId
               }
             });
+            if(splitUpdate[0]==0){
+              await db.Split.create({
+                share: map[i].share,
+                userId: map[i].userId,
+                expenseId: req.params.id
+              });
+            }
         }
+        
         res.status(200);
         res.send('updated')
       } catch (e) {
@@ -380,7 +388,7 @@ module.exports = function (app) {
 
     var invite = await db.Invite.create({
       email: email,
-      token: "" + Math.random() * 9999999999999999,
+      token: "" + Math.random() * 9999999999999,
       walletId: wallet
     });
 
