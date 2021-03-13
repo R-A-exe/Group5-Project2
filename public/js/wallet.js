@@ -94,12 +94,12 @@ $(document).ready(function () {
     </tr>`;
         $("#walletInfo table").append(tableLine);
       }
+    }
 
-      if(totalExpenses){
-        $('#total p').text(`$${parseFloat(totalExpenses).toFixed(2)}`)
-      }else{
-        $('#total p').text(`$0.00`)
-      }
+    if(totalExpenses){
+      $('#total p').text(`$${parseFloat(totalExpenses).toFixed(2)}`)
+    }else{
+      $('#total p').text(`$0.00`)
     }
 
     if(expenses.length==0){
