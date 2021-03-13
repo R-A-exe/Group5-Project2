@@ -18,26 +18,26 @@ $(document).ready(function () {
       alert("Something went wrong");
     } else {
       wallet = walletInfo.wallet;
-      if(walletInfo.wallet.Users.length>0){
+      if (walletInfo.wallet.Users.length > 0) {
         walletInfo.wallet.Users.forEach(e => {
           users.set(e.id, { id: e.id, email: e.email, name: e.name, paid: 0.0, owes: 0.0, settled: 0.0 });
         });
       }
 
-      wallet.category.split("|").forEach(e=>{
-        if(e!='') categories.set(e, {category: e ,total: 0.0});
+      wallet.category.split("|").forEach(e => {
+        if (e != '') categories.set(e, { category: e, total: 0.0 });
       });
-      categories.set('Other', {category: 'Other' ,total: 0.0});
-      categories.set('Settling Balance', {category: 'Settling Balance'});
+      categories.set('Other', { category: 'Other', total: 0.0 });
+      categories.set('Settling Balance', { category: 'Settling Balance' });
 
-      if(walletInfo.expenses.length>0){
+      if (walletInfo.expenses.length > 0) {
         walletInfo.expenses.forEach(e => {
-          if(e.category!='Settling Balance'){
+          if (e.category != 'Settling Balance') {
             users.get(e.paidBy).paid += parseFloat(e.amount);
             totalExpenses += parseFloat(e.amount);
             var cat = categories.get(e.category);
-           cat.total += parseFloat(e.amount);
-          }else{
+            cat.total += parseFloat(e.amount);
+          } else {
             users.get(e.paidBy).settled += parseFloat(e.amount);
             settleExpense.set(e.id, e.amount);
           }
@@ -46,10 +46,10 @@ $(document).ready(function () {
       }
 
 
-      if(walletInfo.shares.length>0){
+      if (walletInfo.shares.length > 0) {
         walletInfo.shares.forEach(e => {
           splits.set(e.id, e.Splits);
-          if(!settleExpense.get(e.id)){
+          if (!settleExpense.get(e.id)) {
             e.Splits.forEach(s => {
               users.get(s.userId).owes += (parseFloat(e.amount) * parseFloat(s.share));
             });
@@ -57,13 +57,15 @@ $(document).ready(function () {
         });
       }
 
-      if(settleExpense.size>0){
-        for(let [key, value ] of settleExpense){
-          splits.get(key).forEach(s=>{
+      if (settleExpense.size > 0) {
+        for (let [key, value] of settleExpense) {
+          splits.get(key).forEach(s => {
             users.get(s.userId).settled += (-parseFloat(value) * parseFloat(s.share));
           });
         };
       }
+
+      adsuw = walletInfo.me;
 
     }
 
@@ -96,16 +98,16 @@ $(document).ready(function () {
       }
     }
 
-    if(totalExpenses){
+    if (totalExpenses) {
       $('#total p').text(`$${parseFloat(totalExpenses).toFixed(2)}`)
-    }else{
+    } else {
       $('#total p').text(`$0.00`)
     }
 
-    if(expenses.length==0){
+    if (expenses.length == 0) {
       $('#costChart').append('<h2>Breakdown by categories</h2>');
       $('#costChart').append('<p>You have no expenses</p>');
-    }else{
+    } else {
       drawChart();
     }
   }
@@ -128,52 +130,62 @@ $(document).ready(function () {
 
   //Click event to get the expense update modal
   $(document).on('click', '.expense', function (e) {
-    var id = $(this).data('id');
-    console.log(id);
+    try {
+      var id = $(this).data('id');
 
-    var expense = expenses.find(e => e.id == id);
-    $('#modelTitle').text('Expense Details');
-    $('#title').val(expense.title);
-    $('#amount').val(expense.amount);
+      var expense = expenses.find(e => e.id == id);
+      $('#modelTitle').text('Expense Details');
+      $('#title').val(expense.title);
+      $('#amount').val(expense.amount);
 
-    
-    for (let [key, value] of categories) {
-      $('#category').append(`<option value="${key}">${key}</option>`);
+
+      for (let [key, value] of categories) {
+        $('#category').append(`<option value="${key}">${key}</option>`);
+      }
+      $(`#category option[value="${expense.category}"]`).attr('selected', 'selected');
+      $('#description').val(expense.description);
+      $('#date').val(expense.date);
+
+      for (let [id, user] of users) {
+        $('#paidBy').append(`<option data-id=${id} value="${user.name}">${user.name}</option>`);
+      }
+
+      $(`#paidBy option[value="${users.get(expense.paidBy).name}"]`).attr('selected', 'selected');
+
+      var shares = splits.get(id);
+      for (let [id, user] of users) {
+        var input = $('<input>');
+        var share = shares.find(e => e.userId == id)
+        if (share) {
+          input.val(share.share);
+        } else {
+          input.val(0.0);
+        }
+
+        input.attr('data-id', id);
+        var shareLine = $('<tr>');
+        shareLine.addClass('shareLine');
+        var userName = $('<td>');
+        userName.text(user.name);
+        shareLine.append(userName).append(input);
+        $("#split table").append(shareLine).append();
+      }
+
+      $('#modal').css('display', 'block');
+
+      //Click event to submit updated modal info
+      $("#submit-btn").click(e => {
+        e.preventDefault();
+        sendExpense(id);
+
+      });
+    } catch (err) {
+      console.log(err);
+      closeModal();
     }
-    $(`#category option[value="${expense.category}"]`).attr('selected', 'selected');
-    $('#description').val(expense.description);
-    $('#date').val(expense.date);
-
-    for (let [id, user] of users) {
-      $('#paidBy').append(`<option data-id=${id} value="${user.name}">${user.name}</option>`);
-    }
-
-    $(`#paidBy option[value="${users.get(expense.paidBy).name}"]`).attr('selected', 'selected');
-
-    var shares = splits.get(id);
-    for (let [id, user] of users) {
-      var input = $('<input>');
-      input.val(shares.find(e => e.userId == id).share);
-      input.attr('data-id', id);
-      var shareLine = $('<tr>');
-      shareLine.addClass('shareLine');
-      var userName = $('<td>');
-      userName.text(user.name);
-      shareLine.append(userName).append(input);
-      $("#split table").append(shareLine).append();
-    }
-
-    $('#modal').css('display', 'block');
-    
-    //Click event to submit updated modal info
-    $("#submit-btn").click(e => {
-      e.preventDefault();
-      sendExpense(id);
-
-    });
 
   });
-
+  var adsuw = null;
   //click event to dispaly modal to add an expense
   $('#addExpense').click(e => {
     e.preventDefault();
@@ -185,6 +197,7 @@ $(document).ready(function () {
     for (let [id, user] of users) {
       $('#paidBy').append(`<option data-id=${id} value="${user.name}">${user.name}</option>`);
     }
+    $(`#paidBy option[value="${users.get(adsuw).name}"]`).attr('selected', 'selected');
 
     for (let [id, user] of users) {
       var input = $('<input>');
@@ -254,8 +267,7 @@ $(document).ready(function () {
     if (validateData()) {
       var map = new Array();
       $("#split table tr input").each(function (i, obj) {
-        console.log(0 + parseFloat($(obj).val().trim()));
-        var sh = isNaN(parseFloat($(obj).val().trim())) ? '0' : parseFloat($(obj).val().trim());
+        var sh = isNaN(parseFloat($(obj).val().trim())) ? '0.0' : parseFloat($(obj).val().trim());
         map.push({ share: sh, userId: $(obj).data('id') });
       });
 
@@ -317,30 +329,30 @@ $(document).ready(function () {
   });
 
   //Google Chart
-  function drawChart() {                        
+  function drawChart() {
     google.charts.load('current', { 'packages': ['corechart'] });
     google.charts.setOnLoadCallback(loadChart);
     function loadChart() {
-        var arrOfArrs = [['Expenses', 'CAD']];
-        categories.forEach((el) => {
-           if(el.category!='Settling Balance') arrOfArrs.push([el.category, el.total]);
-        });
-        var data = google.visualization.arrayToDataTable(arrOfArrs);
-        var chartWidth = document.getElementById('costChart').offsetWidth;
-        var options = {
-            width: (chartWidth-150), height: (chartWidth - 150), legend: { position: 'bottom', alignment: 'center' }, pieSliceText: 'value', chartArea: { width: "80%" }
-        };
-        var chart = new google.visualization.PieChart(document.getElementById("costChart"));
-        chart.draw(data, options);
-        $('#costChart').prepend('<h2>Breakdown by categories</h2>');
+      var arrOfArrs = [['Expenses', 'CAD']];
+      categories.forEach((el) => {
+        if (el.category != 'Settling Balance') arrOfArrs.push([el.category, el.total]);
+      });
+      var data = google.visualization.arrayToDataTable(arrOfArrs);
+      var chartWidth = document.getElementById('costChart').offsetWidth;
+      var options = {
+        width: (chartWidth - 150), height: (chartWidth - 150), legend: { position: 'bottom', alignment: 'center' }, pieSliceText: 'value', chartArea: { width: "80%" }
+      };
+      var chart = new google.visualization.PieChart(document.getElementById("costChart"));
+      chart.draw(data, options);
+      $('#costChart').prepend('<h2>Breakdown by categories</h2>');
     }
-}
+  }
 
- //resize google chart with window
-$(window).on('resize', function () {       
+  //resize google chart with window
+  $(window).on('resize', function () {
     $("#costChart").empty();
     drawChart();
-});
+  });
 
 
 
