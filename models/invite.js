@@ -1,5 +1,5 @@
+//invite: email, token, walletId
 const bcrypt = require('bcryptjs');
-
 
 module.exports = function (sequelize, DataTypes) {
     var Invite = sequelize.define('Invite',

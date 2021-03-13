@@ -179,7 +179,7 @@ ul{
   width: 30%;
 }
 
-
+/*Media Queries*/
 @media (max-width: 550px) {
 
   #walletBox{

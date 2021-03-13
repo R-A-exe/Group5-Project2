@@ -1,5 +1,6 @@
 $(document).ready(function () {
 
+  //Get query string value
   const urlParams = new URLSearchParams(window.location.search);
   var id = urlParams.get('id');
 
@@ -11,6 +12,7 @@ $(document).ready(function () {
   var totalExpenses = null;
   var settleExpense = new Map();
 
+  //GET request to get wallets by id
   $.get(`api/wallets/${id}`, (walletInfo, status) => {
     if (status != 'success') {
       alert("Something went wrong");
@@ -70,6 +72,7 @@ $(document).ready(function () {
     loadWalletInfo();
   });
 
+  //function to load wallet info
   function loadWalletInfo() {
 
     $("#walletBox h1").text(wallet.title);
@@ -107,6 +110,7 @@ $(document).ready(function () {
     }
   }
 
+  //Function to load expenses in table.
   function loadExpenses() {
     for (expense of expenses) {
 
@@ -122,7 +126,7 @@ $(document).ready(function () {
     }
   };
 
-
+  //Click event to get the expense update modal
   $(document).on('click', '.expense', function (e) {
     var id = $(this).data('id');
     console.log(id);
@@ -160,7 +164,8 @@ $(document).ready(function () {
     }
 
     $('#modal').css('display', 'block');
-
+    
+    //Click event to submit updated modal info
     $("#submit-btn").click(e => {
       e.preventDefault();
       sendExpense(id);
@@ -169,7 +174,7 @@ $(document).ready(function () {
 
   });
 
-
+  //click event to dispaly modal to add an expense
   $('#addExpense').click(e => {
     e.preventDefault();
     $('#modelTitle').text('New Expense');
@@ -195,6 +200,7 @@ $(document).ready(function () {
 
     $('#modal').css('display', 'block');
 
+    //click event to send data to server
     $("#submit-btn").click(e => {
       e.preventDefault();
       sendExpense(null);
@@ -203,7 +209,7 @@ $(document).ready(function () {
 
   });
 
-
+  //Function to validate data in expense modal
   function validateData() {
 
     $('#modal .red').remove();
@@ -243,6 +249,7 @@ $(document).ready(function () {
     return valid;
   }
 
+  //function to create or update expenses.
   function sendExpense(id) {
     if (validateData()) {
       var map = new Array();
@@ -254,6 +261,7 @@ $(document).ready(function () {
 
       var url;
       var type;
+      //if conditional to for post or put request
       if (id === null) {
         url = '/api/expenses/';
         type = 'POST';
@@ -262,6 +270,7 @@ $(document).ready(function () {
         type = 'PUT';
       }
 
+      //Ajax call for data
       $.ajax({
         url: url,
         type: type,
@@ -287,6 +296,7 @@ $(document).ready(function () {
     }
   }
 
+  //Function to close and clear input field of the modal
   function closeModal() {
     $("#submit-btn").off('click');
     $('#modelTitle').text('');
@@ -300,14 +310,14 @@ $(document).ready(function () {
     $('#modal').css('display', 'none');
   }
 
-
+  //click event to close modal when the close button is clicked
   $("#close").click(e => {
     e.preventDefault();
     closeModal();
   });
 
-
-  function drawChart() {                                                  //Google Chart
+  //Google Chart
+  function drawChart() {                        
     google.charts.load('current', { 'packages': ['corechart'] });
     google.charts.setOnLoadCallback(loadChart);
     function loadChart() {
@@ -326,7 +336,8 @@ $(document).ready(function () {
     }
 }
 
-$(window).on('resize', function () {        //resize google chart with window
+ //resize google chart with window
+$(window).on('resize', function () {       
     $("#costChart").empty();
     drawChart();
 });
