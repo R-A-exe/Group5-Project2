@@ -8,6 +8,13 @@ form.login {
   margin-top: 50px;
 }
 
+button {
+  background-color: #f4511e !important ;
+  color: white !important;
+  border: solid 1px white !important;
+
+}
+
 .msg {
   color: red
 }
@@ -27,6 +34,20 @@ h2, th, h4{
 .navbar-brand{
   font-size: 24pt !important;
   padding-left: 10px;
+}
+
+.navbar {
+  background-color:#f4511e ;
+  /* color : white; */
+}
+
+.navbar-toggler-icon {
+  /* background-color: white; */
+   /* color: white; */
+}
+
+.navbar a{
+  color: white;
 }
 
 .col-1, .col-11, .col{
