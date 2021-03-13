@@ -220,9 +220,18 @@ module.exports = function (app) {
         owner: req.user.id
       }
     });
-    if (req.body.title && req.body.category) {
       await db.Wallet.update({
         title: req.body.title,
+      },
+        {
+          where: {
+            id: req.params.id,
+            owner: req.user.id
+          }
+        });
+
+    if (req.body.category) {
+      await db.Wallet.update({
         category: sequelize.fn('CONCAT', sequelize.col("category"), req.body.category),
       },
         {
