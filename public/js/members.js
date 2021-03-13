@@ -191,7 +191,6 @@ $(document).ready(() => {
                     url: url,
                     data: data,
                     success: function (res) {
-                        alert('Added!')
                         closeModal();
                         location.reload();
                     },
